@@ -27,7 +27,12 @@ mysqli_report(MYSQLI_REPORT_OFF);
 
 $link = mysqli_connect($db_host, $db_user, $db_passwort, $db_datenbank);
 if ($link === false) {
-    die('Keine Verbindung zur Datenbank möglich: ' . mysqli_connect_error());
+    // Details nur ins Log, dem Client keine Verbindungs-/Strukturinfos preisgeben.
+    error_log('RSS Grabber: DB-Verbindung fehlgeschlagen: ' . mysqli_connect_error());
+    if (headers_sent() === false) {
+        http_response_code(500);
+    }
+    die('Die Datenbankverbindung ist derzeit nicht möglich. Bitte versuchen Sie es später erneut.');
 }
 /** @var mysqli $link */
 

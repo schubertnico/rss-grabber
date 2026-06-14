@@ -34,7 +34,43 @@ final class FunctionsTest extends TestCase
             'null ergibt leeren String'              => [null, 5, ''],
             'leerer String bleibt leer'              => ['', 5, ''],
             'stripslashes wird angewandt'            => ["O\\'Brien", 100, "O'Brien"],
+            'multibyte zeichenweise gekuerzt'        => ['äöüäöü', 3, 'äöü...'],
         ];
+    }
+
+    public function testRenderFeedPostEscaptHtml(): void
+    {
+        $row = [
+            'link' => 'https://example.com/a',
+            'title' => '<script>alert(1)</script>',
+            'feeds_id' => '1',
+            'pubDate' => '2024-03-15 14:30:45',
+            'description' => 'Beschreibung',
+        ];
+        $feeds = ['1' => ['url' => 'https://feed.example', 'name' => 'Mein Feed']];
+        $html = rssg_render_feed_post($row, $feeds, 250);
+
+        self::assertStringContainsString('&lt;script&gt;', $html);
+        self::assertStringNotContainsString('<script>alert(1)', $html);
+        self::assertStringContainsString('class="beitrag_title"', $html);
+        self::assertStringContainsString('Mein Feed', $html);
+    }
+
+    public function testRenderFeedPostNeutralisiertGefaehrlicheUrl(): void
+    {
+        $row = [
+            'link' => 'javascript:alert(1)',
+            'title' => 'Titel',
+            'feeds_id' => '1',
+            'pubDate' => '2024-03-15 14:30:45',
+            'description' => 'x',
+        ];
+        $html = rssg_render_feed_post($row, [], 250);
+        self::assertStringContainsString('href="#"', $html);
+        // sicherheitsrelevant: kein ausführbares javascript:-Ziel im href
+        self::assertStringNotContainsString('href="javascript:', $html);
+        // unbekannter Feed -> Fallback-Name
+        self::assertStringContainsString('unbekannt', $html);
     }
 
     public function testDateMysql2GermanFormatiertGueltigesDatum(): void

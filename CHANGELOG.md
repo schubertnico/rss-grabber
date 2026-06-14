@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unveröffentlicht] – Robustheit & Code-Qualität (Runde 2)
+
+### Geändert
+- **Sync-Robustheit (`graber_ajax.php`):** Feed-Abruf mit 10-s-Timeout
+  (Stream-Context), kein `die()` mehr – ein einzelner defekter Feed bricht den
+  Lauf nicht ab.
+- **Installer (`install/index.php`):** Die generierte `config.php` wird per
+  `var_export` erzeugt (Werte mit `'`/`"`/`\` können die Datei nicht mehr
+  brechen), moderner Schutz-Guard, POST-Werte `is_string`-geprüft.
+- **Kein Info-Leak (`db.php`):** Verbindungsfehler → generische Meldung +
+  `error_log` + HTTP 500.
+- **`limitch()`** kürzt zeichenweise (`mb_substr`), zerschneidet keine Umlaute.
+- **`ausgabe.php`:** doppelte Render-Logik in `rssg_render_feed_post()`
+  ausgelagert (zentrales Escaping). Damit wird auch der zuvor **ungeescapte
+  AJAX-Zweig** abgesichert (verbleibende XSS-Lücke im nachgeladenen Inhalt).
+  Feed-ID-Listen als Integer (`intval`), keine `IN ('')`-Query.
+
+### Tests
+- Unit-Tests für `rssg_render_feed_post()` und multibyte-`limitch()`.
+
 ## [Unveröffentlicht] – Sicherheitshärtung (Auth, CSRF, XSS, SQLi)
 
 ### Hinzugefügt

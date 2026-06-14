@@ -16,18 +16,15 @@
 // Fehlerfall, der als Meldung angezeigt werden soll – daher Reporting abschalten.
 mysqli_report(MYSQLI_REPORT_OFF);
 $_POST['senden'] = (string)(int)($_POST['senden'] ?? 0);
-$_POST['db_host'] = isset($_POST['db_host']) ? trim($_POST['db_host']) : '';
-$_POST['db_datenbank'] = isset($_POST['db_datenbank']) ? trim($_POST['db_datenbank']) : '';
-$_POST['db_user'] = isset($_POST['db_user']) ? trim($_POST['db_user']) : '';
-$_POST['db_passwort'] = isset($_POST['db_passwort']) ? trim($_POST['db_passwort']) : '';
-if (!isset($_POST['anzahl_grabber_pro_lauf'])) {
-    $_POST['anzahl_grabber_pro_lauf']='';
-} else {
-    $_POST['anzahl_grabber_pro_lauf']=trim($_POST['anzahl_grabber_pro_lauf']);
-}
-$_POST['anz_anzeige'] = isset($_POST['anz_anzeige']) ? trim($_POST['anz_anzeige']) : '';
-$_POST['max_laege_description'] = isset($_POST['max_laege_description']) ? trim($_POST['max_laege_description']) : '';
-$_POST['iso_to_utf'] = isset($_POST['iso_to_utf']) ? trim($_POST['iso_to_utf']) : '';
+// Eingaben skalar-sicher normalisieren (kein TypeError bei Array-Eingabe).
+$_POST['db_host'] = is_string($_POST['db_host'] ?? null) ? trim((string)$_POST['db_host']) : '';
+$_POST['db_datenbank'] = is_string($_POST['db_datenbank'] ?? null) ? trim((string)$_POST['db_datenbank']) : '';
+$_POST['db_user'] = is_string($_POST['db_user'] ?? null) ? trim((string)$_POST['db_user']) : '';
+$_POST['db_passwort'] = is_string($_POST['db_passwort'] ?? null) ? trim((string)$_POST['db_passwort']) : '';
+$_POST['anzahl_grabber_pro_lauf'] = is_string($_POST['anzahl_grabber_pro_lauf'] ?? null) ? trim((string)$_POST['anzahl_grabber_pro_lauf']) : '';
+$_POST['anz_anzeige'] = is_string($_POST['anz_anzeige'] ?? null) ? trim((string)$_POST['anz_anzeige']) : '';
+$_POST['max_laege_description'] = is_string($_POST['max_laege_description'] ?? null) ? trim((string)$_POST['max_laege_description']) : '';
+$_POST['iso_to_utf'] = is_string($_POST['iso_to_utf'] ?? null) ? trim((string)$_POST['iso_to_utf']) : '';
 if (!isset($erfolgreich)) {
     $erfolgreich='';
 }
@@ -53,7 +50,7 @@ if($_POST['senden']==1){
      * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
      */
 
-	if(strpos('config.php',\$_SERVER['PHP_SELF'])) {
+	if (realpath(\$_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
 	    header('Location: ../index.php');
 	    die();
 	}
@@ -65,27 +62,27 @@ if($_POST['senden']==1){
 	 * Bitte hinterlegen Sie hier die
 	 * Mysql Datenbankdaten.
 	 * */
-	\$db_host='".$_POST['db_host']."';
-	\$db_datenbank='".$_POST['db_datenbank']."';
-	\$db_user='".$_POST['db_user']."';
-	\$db_passwort='".$_POST['db_passwort']."';
+	\$db_host=".var_export((string)$_POST['db_host'], true).";
+	\$db_datenbank=".var_export((string)$_POST['db_datenbank'], true).";
+	\$db_user=".var_export((string)$_POST['db_user'], true).";
+	\$db_passwort=".var_export((string)$_POST['db_passwort'], true).";
 	/**
 	  * Die Anzahl, wie viele Feeds pro Aktualisierung geprüft werden soll
 	  */
-	 \$anzahl_grabber_pro_lauf='".$_POST['anzahl_grabber_pro_lauf']."';
+	 \$anzahl_grabber_pro_lauf=".var_export((int)$_POST['anzahl_grabber_pro_lauf'], true).";
 	 /**
 	  * Wie viele Einträge sollen auf der Ausgabeseite angezeigt werden?
 	  */
-	 \$anz_anzeige='".$_POST['anz_anzeige']."';
+	 \$anz_anzeige=".var_export((int)$_POST['anz_anzeige'], true).";
 	 /**
 	  * Maximalen Länge der Beschreibung von einen Blog Beitrag, die Länge wird mit der Anzahl der Zeichen berechnet
 	  */
-	 \$max_laege_description='".$_POST['max_laege_description']."';
+	 \$max_laege_description=".var_export((int)$_POST['max_laege_description'], true).";
 	 /**
 	  * Den Feed von ISO zu UTF 8 konvertieren
 	  * 1 = ja, 2 = nein
 	  */
-	 \$iso_to_utf='".$_POST['iso_to_utf']."'";
+	 \$iso_to_utf=".var_export((int)$_POST['iso_to_utf'], true)."";
 	$config.=" ?>";
 	if ($_POST['anzahl_grabber_pro_lauf']=='') {
          $fehler .="- Bitte geben Sie die Anzahl, wie viele Feeds pro Aktualisierung geprüft werden soll.<br>";

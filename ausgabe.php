@@ -49,21 +49,16 @@ if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
 		$i++;
     }
 }
-#var_dump(($_POST['ajax']!=''));
+// Aus der DB stammende Feed-IDs als sichere Integer-Liste (leer -> 0 = kein Treffer).
+$idList = $sql_zusatz === [] ? '0' : implode(',', array_map('intval', $sql_zusatz));
 if($ajax!==0){
 	$start=($anz_anzeige*($ajax+1));
-	$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.(int)$start.', '.$anz_anzeige;
+	$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.(int)$start.', '.$anz_anzeige;
 
   $query = mysqli_query($link, $sql_select);
 	if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
 	    while($daten = mysqli_fetch_assoc($query)){
-	    	$datenLink = (string)$daten['link'];
-	    	$datenTitle = (string)$daten['title'];
-	    	$datenFeedsId = (string)$daten['feeds_id'];
-	    	$datenPubDate = (string)$daten['pubDate'];
-	    	$datenDescription = (string)$daten['description'];
-	    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.($feeds[$datenFeedsId]['url'] ?? '#').'" target="_blank">'.($feeds[$datenFeedsId]['name'] ?? 'unbekannt').'</a> am '.date_mysql2german($datenPubDate).'</div>';
-	    	$ausgabe .='<div class="beitrag_description">'.limitch(strip_tags($datenDescription),$max_laege_description).'</div><div class="beitrag_link"><a href="'.$datenLink.'" target="_blank" class="beitrag_link">'.limitch($datenLink,95).'</a></div><br><br>';
+	    	$ausgabe .= rssg_render_feed_post($daten, $feeds, $max_laege_description);
 	    }
 	}
 	echo $ausgabe;
@@ -71,21 +66,15 @@ if($ajax!==0){
 }
 
 
-$sql_select='SELECT id FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC';
+$sql_select='SELECT id FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC';
 $query = mysqli_query($link, $sql_select);
 $anz= $query instanceof mysqli_result ? (int)round((int)mysqli_num_rows($query)/$anz_anzeige) : 0;
 
-$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.$anz_anzeige;
+$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.$anz_anzeige;
 $query = mysqli_query($link, $sql_select);
 if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
     while($daten = mysqli_fetch_assoc($query)){
-    	$datenLink = (string)$daten['link'];
-    	$datenTitle = (string)$daten['title'];
-    	$datenFeedsId = (string)$daten['feeds_id'];
-    	$datenPubDate = (string)$daten['pubDate'];
-    	$datenDescription = (string)$daten['description'];
-    	$ausgabe .='<a href="'.rssg_safe_url($datenLink).'" target="_blank" class="beitrag_title" title="'.rssg_e($datenTitle).'">'.rssg_e($datenTitle).'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.rssg_safe_url((string)($feeds[$datenFeedsId]['url'] ?? '#')).'" target="_blank">'.rssg_e((string)($feeds[$datenFeedsId]['name'] ?? 'unbekannt')).'</a> am '.rssg_e(date_mysql2german($datenPubDate)).'</div>';
-    	$ausgabe .='<div class="beitrag_description">'.rssg_e(limitch(strip_tags($datenDescription),$max_laege_description)).'</div><div class="beitrag_link"><a href="'.rssg_safe_url($datenLink).'" target="_blank" class="beitrag_link">'.rssg_e(limitch($datenLink,95)).'</a></div><br><br>';
+    	$ausgabe .= rssg_render_feed_post($daten, $feeds, $max_laege_description);
     }
 } else {
 	$ausgabe .='Es wurden noch keine Feeds synchronisiert. Bitte klicken Sie als erstes auf Feeds verwalten um einen Feed hinzuzufügen. Anschließend können sie dann über Feeds synchronisieren die Daten der einzelnen Feeds abfragen.';
