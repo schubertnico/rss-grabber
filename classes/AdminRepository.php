@@ -1,11 +1,11 @@
 <?php
 /**
  * -----------------------------------------
- * RSS Grabber free v2.0
+ * RSS Grabber free v3.0
  * -----------------------------------------
  * Datenzugriff fuer Admin-Anmeldedaten.
  *
- * @version free v2.0 (PHP 8.5)
+ * @version free v3.0 (PHP 8.5)
  */
 class AdminRepository
 {

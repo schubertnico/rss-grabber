@@ -1,138 +1,61 @@
 # Changelog
 
-## [Unveröffentlicht] – Repository-Schicht & Scroll-Bugfix
+Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
+Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/).
 
-### Behoben
-- **Endless-Scroll lud das gesamte Layout statt nur der Beiträge.** Ursache: Die
-  AJAX-Erkennung in `ausgabe.php` prüfte `(int)$ajax !== 0`, womit der erste
-  Nachlade-Schritt (`ajax=0`) die Vollseite zurückgab. Jetzt wird am
-  **Vorhandensein** des `ajax`-Parameters erkannt. Per E2E-Test abgesichert.
+## [3.0.0] – 2026-06-14
 
-### Geändert – Architektur
-- DB-/Geschäftslogik aus den Controllern in eine testbare Repository-Schicht
-  ausgelagert: `classes/FeedRepository.php` (alle Feed-/Post-/Sync-Queries) und
-  `classes/AdminRepository.php` (Login-Verifikation). Controller sind nun dünn
-  (Request → Repository → Render). Kein inline-SQL mehr in den Controllern.
-- Hilfsfunktion `rssg_feed_name()` (Host-Name aus URL; behebt nebenbei die
-  fehlerhafte Anzeige bei `https`-Feeds).
+Große Modernisierung der Free-Version: lauffähig unter **PHP 8.5**, durchgängiges
+**UTF-8**, abgesicherter Verwaltungsbereich, abhängigkeitsfreies Frontend und eine
+testbare Architektur mit automatisierten Tests (PHPUnit + Playwright) und
+statischer Analyse (PHPStan Level 8).
 
-### Tests
-- `FeedRepositoryTest` + `AdminRepositoryTest` (Integration gegen Test-DB) decken
-  die Repository-Schicht direkt ab; Unit-Test für `rssg_feed_name()`.
-- E2E-Test gegen die Scroll-Regression (Fragment statt Layout).
-
-## [Unveröffentlicht] – Statisches Analyse-Gate (PHPStan)
+### Highlights
+- **PHP 8.5** statt 8.1; keine Deprecations/Warnungen mehr.
+- **UTF-8 ohne Mojibake** (utf8mb4, korrekte Umlaute ä ö ü ß).
+- **Login + CSRF + XSS-Schutz + Prepared Statements** für den Admin-Bereich.
+- **Kein prototype.js/jQuery** mehr – schlankes Vanilla-JS.
+- **Repository-Architektur**, ~90 % Test-Coverage der Kernlogik.
 
 ### Hinzugefügt
-- **PHPStan Level 8** (`phpstan.neon`) + `phpstan-phpunit`-Extension als
-  Dev-Abhängigkeit; Composer-Shortcut `composer analyse`. Lauf ist fehlerfrei.
-
-### Behoben (durch die Analyse aufgedeckt)
-- `inc/config.php`: redundante `@var string`-Tags entfernt.
-- `login.php`: fehlende `@var mysqli $link`-Annotation ergänzt.
-- `logout.php`: `setcookie((string)session_name(), …)`.
-- `classes/function.php`: `rssg_render_feed_post()`-PHPDoc auf `array-key`.
-
-## [Unveröffentlicht] – Frontend-Modernisierung + CSRF-Sync
+- Session-basiertes **Login** (`login.php`/`logout.php`) mit `admin`-Tabelle
+  (bcrypt). Default-Zugang **admin / admin** (nach Installation ändern).
+- **CSRF-Schutz** (Pro-Session-Token) für alle Schreibaktionen und den Sync.
+- Repository-Schicht `FeedRepository` / `AdminRepository`.
+- Abhängigkeitsfreies Frontend `java/rss-grabber.js` (Sync + Endless-Scroll).
+- Tests: PHPUnit (Unit/Integration/Smoke) + Playwright-E2E.
+- Statische Analyse **PHPStan Level 8** (`composer analyse`).
+- Docker-Entwicklungsumgebung unter `.docker/` (PHP 8.5, Composer, pcov).
 
 ### Geändert
-- **Kein prototype.js / jQuery 1.4.2 mehr:** Die gesamte Frontend-Logik
-  (Feed-Synchronisierung + Endless-Scroll) läuft jetzt über abhängigkeitsfreies
-  Vanilla-JS (`java/rss-grabber.js`, `fetch`). `tpl/layout.html` lädt nur noch
-  diese eine Datei.
-- **CSRF-Schutz für die Synchronisierung:** `graber_ajax.php` verlangt jetzt ein
-  CSRF-Token (`POST csrf`) und weist Anfragen ohne gültiges Token mit HTTP 403
-  ab. Das Token wird per `data-csrf`-Attribut an das JS übergeben.
+- **UTF-8:** `mysqli_set_charset('utf8mb4')`, verlustbehaftete
+  iconv-Transkodierung in `addItem()` entfernt, Tabellen als `utf8mb4`.
+- **PHP 8.5:** `mysqli_real_escape_string`, `file_get_contents` im
+  Template-Parser, `exit` nach Redirects, `require_once`, DivisionByZero-Schutz,
+  robustes `date_mysql2german`, `mysqli_report(OFF)`.
+- **Sicherheit:** alle DB-Ausgaben werden escaped (`htmlspecialchars`, http(s)-
+  Whitelist); SQL über Prepared Statements.
+- **Robustheit:** Feed-Sync mit Timeout und Best-Effort (kein `die()`); Installer
+  erzeugt `config.php` injektionssicher per `var_export`; `db.php` ohne
+  Info-Leak.
+- **Architektur:** DB-/Geschäftslogik aus den Controllern in Repositories
+  ausgelagert; Controller sind nun dünn.
+- **Mindestanforderung** im Installer auf PHP **8.5** angehoben.
+- Versionskennzeichnung durchgängig auf **free v3.0**.
+
+### Behoben
+- **Endless-Scroll lud das gesamte Layout** statt nur der Beiträge (AJAX-
+  Erkennung bei `ajax=0`). Jetzt korrekt am Vorhandensein des Parameters erkannt.
+- `limitch()` kürzt zeichenweise (`mb_substr`) – keine zerschnittenen Umlaute.
+- Anzeigename bei `https`-Feeds (`rssg_feed_name()`).
 
 ### Entfernt
 - `java/prototype.js`, `java/jQuery.js`, `java/jquery-1.4.2.min.js` (veraltet, 2010).
 
-### Tests
-- E2E um Sync-Flow (Vanilla-JS) und CSRF-Negativtest erweitert.
+### Sicherheit
+- Zugriffsschutz, CSRF, Output-Escaping und Prepared Statements schließen die
+  zuvor offenen Lücken im Verwaltungsbereich.
 
-## [Unveröffentlicht] – Robustheit & Code-Qualität (Runde 2)
+## [2.0.0] – 2022-12-11
 
-### Geändert
-- **Sync-Robustheit (`graber_ajax.php`):** Feed-Abruf mit 10-s-Timeout
-  (Stream-Context), kein `die()` mehr – ein einzelner defekter Feed bricht den
-  Lauf nicht ab.
-- **Installer (`install/index.php`):** Die generierte `config.php` wird per
-  `var_export` erzeugt (Werte mit `'`/`"`/`\` können die Datei nicht mehr
-  brechen), moderner Schutz-Guard, POST-Werte `is_string`-geprüft.
-- **Kein Info-Leak (`db.php`):** Verbindungsfehler → generische Meldung +
-  `error_log` + HTTP 500.
-- **`limitch()`** kürzt zeichenweise (`mb_substr`), zerschneidet keine Umlaute.
-- **`ausgabe.php`:** doppelte Render-Logik in `rssg_render_feed_post()`
-  ausgelagert (zentrales Escaping). Damit wird auch der zuvor **ungeescapte
-  AJAX-Zweig** abgesichert (verbleibende XSS-Lücke im nachgeladenen Inhalt).
-  Feed-ID-Listen als Integer (`intval`), keine `IN ('')`-Query.
-
-### Tests
-- Unit-Tests für `rssg_render_feed_post()` und multibyte-`limitch()`.
-
-## [Unveröffentlicht] – Sicherheitshärtung (Auth, CSRF, XSS, SQLi)
-
-### Hinzugefügt
-- **Zugriffsschutz:** Session-basiertes Login (`login.php`/`logout.php`) mit
-  Admin-Tabelle in der DB (bcrypt). Geschützt: Feeds verwalten/anlegen/bearbeiten,
-  Synchronisierung. Öffentlich bleibt nur `ausgabe.php`/`premium-version.php`.
-  Default-Zugang **admin / admin** (per Init-Skript, **bitte sofort ändern**).
-- **CSRF-Schutz:** Pro-Session-Token (`random_bytes`, `hash_equals`) für alle
-  schreibenden Aktionen (anlegen, bearbeiten, löschen).
-- **DB:** Neue Tabelle `admin` in `.docker/init.sql` und `install/index.php`.
-- `inc/auth.php` (Session/CSRF/Login-Helfer), `rssg_e()`/`rssg_safe_url()`.
-
-### Geändert
-- **XSS:** Alle DB-Inhalte werden beim Output mit `htmlspecialchars` kodiert
-  (`ausgabe.php`, `feeds_verwalten.php`); `href` nur mit http(s)-Schema.
-- **SQL-Injection:** Login, Feed anlegen/bearbeiten/löschen, `addItem()` und das
-  Sync-Update nutzen jetzt **Prepared Statements**; ID-Listen per `intval`.
-
-### Tests
-- `tests/Unit/AuthTest.php` (CSRF, Escaping, Passwort-Hash).
-- Controller-Smoke-Tests mit angemeldeter Session; E2E um Login-,
-  CSRF-/XSS- und Logout-Tests erweitert.
-
-## [Unveröffentlicht] – PHP 8.5 & UTF-8 Modernisierung
-
-### Geändert – UTF-8 / Umlaute
-- `db.php`: Verbindung setzt jetzt explizit `mysqli_set_charset($link, 'utf8mb4')`.
-- `classes/function.php` (`addItem`): Die verlustbehaftete Transkodierung
-  `UTF-8 → ISO-8859-1//TRANSLIT` wurde entfernt. Feed-Inhalte werden als UTF-8
-  gespeichert. Das war die Hauptursache für defekte Umlaute (Mojibake).
-- `init.sql`, `install/index.php`: Tabellen `feeds`/`feeds_post` werden als
-  `utf8mb4` (Collation `utf8mb4_unicode_ci`) angelegt.
-- `graber_ajax.php`: sendet `Content-Type: text/html; charset=UTF-8`.
-
-### Geändert – PHP 8.5
-- `mysqli_escape_string()` → `mysqli_real_escape_string()` (8.5-Deprecation)
-  in `feed_hinzufuegen.php`, `feed_bearbeiten.php`, `feeds_verwalten.php`,
-  `classes/function.php`.
-- `classes/parase.php`: `fopen`/`fread`/`filesize` → `file_get_contents`
-  (behebt fatalen `ValueError` bei leerer Template-Datei); explizite
-  Methoden-Sichtbarkeit; fehlende Datei wirft jetzt `RuntimeException`.
-- `db.php` / `install/index.php`: `mysqli_report(MYSQLI_REPORT_OFF)` – das
-  Legacy-Rückgabewert-Pattern bleibt gültig, DB-Fehler führen nicht mehr zu
-  ungefangenen Exceptions (Fatal 500).
-- `index.php` und alle Controller: `exit;` nach `header('Location: …')`,
-  `require_once` statt `include`, kein `@` mehr vor `file_exists`.
-- `ausgabe.php`: Schutz gegen `DivisionByZeroError` bei der Paginierung;
-  `ajax`-Parameter typsicher als `int`; abgesicherte Array-Zugriffe.
-- `classes/function.php` (`date_mysql2german`): Eingabeformat wird validiert
-  (keine „Undefined array key“-Warnungen mehr bei ungültigen Datumswerten).
-- `graber_ajax.php`: `count()` auf SimpleXML durch direkte Iteration ersetzt;
-  `LIMIT` typsicher als `int`; libxml-Fehler werden intern gehalten.
-- `inc/config.php`: DB-Parameter über Umgebungsvariablen (`RSSG_DB_*`)
-  überschreibbar; numerische Einstellungen als `int`.
-
-### Hinzugefügt – Tests & Tooling
-- `composer.json` + PHPUnit 11.5 (Unit-, Integrations- und Controller-Smoke-Tests).
-- PHPUnit-Coverage ≥ 80 % über `classes/` (aktuell ~94 %).
-- Playwright-E2E-Suite (`tests/e2e/`) gegen die Docker-Instanz.
-- `.docker/`: PHP-8.5-Image inkl. Composer + pcov (Coverage).
-- Dokumentation: `docs/SPECS.md`, `docs/PLAN.md`, `README.md`.
-
-### Nicht enthalten (bewusst, außerhalb des Migrationsumfangs)
-- Umstellung auf Prepared Statements, CSRF-Schutz und Authentifizierung sind als
-  Folgearbeiten dokumentiert (siehe Audit), aber nicht Teil dieser Migration,
-  um das Verhalten der Free-Version stabil zu halten.
+- Ursprüngliche Free-Version (PHP 8.1).

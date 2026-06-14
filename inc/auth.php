@@ -2,7 +2,7 @@
 /**
  * Authentifizierung & CSRF-Schutz fuer den RSS-Grabber-Verwaltungsbereich.
  *
- * @version free v2.0 (PHP 8.5)
+ * @version free v3.0 (PHP 8.5)
  */
 
 if (session_status() === PHP_SESSION_NONE) {

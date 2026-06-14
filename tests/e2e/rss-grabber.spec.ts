@@ -54,7 +54,7 @@ for (const path of PAGES) {
 
         const body = await page.content();
         expect(body, `PHP-Fehler in ${path}`).not.toMatch(PHP_ERROR);
-        await expect(page.locator('h1')).toContainText('RSS Grabber free v2.0');
+        await expect(page.locator('h1')).toContainText('RSS Grabber free v3.0');
 
         expect(badResponses, `fehlerhafte Responses auf ${path}`).toEqual([]);
         expect(jsErrors, `JS-Fehler auf ${path}`).toEqual([]);
@@ -175,7 +175,7 @@ test('Endless-Scroll: AJAX-Nachladen liefert nur ein Fragment, nicht das Layout'
     expect(res.status()).toBe(200);
     const body = await res.text();
     expect(body).not.toContain('</html>');
-    expect(body).not.toContain('<h1>RSS Grabber free v2.0</h1>');
+    expect(body).not.toContain('<h1>RSS Grabber free v3.0</h1>');
 });
 
 test('Synchronisierung: Klick aktualisiert den Status (Vanilla-JS)', async ({ page }) => {
@@ -197,7 +197,7 @@ test('CSRF: Sync-Aufruf ohne Token wird abgewiesen', async ({ page }) => {
 
 test('Logout beendet die Session', async ({ page }) => {
     await page.goto('feeds_verwalten.php');
-    await expect(page.locator('h1')).toContainText('RSS Grabber free v2.0');
+    await expect(page.locator('h1')).toContainText('RSS Grabber free v3.0');
     await page.goto('logout.php');
     // Nach Logout führt der Zugriff auf eine geschützte Seite zur Anmeldung.
     await page.goto('feeds_verwalten.php');

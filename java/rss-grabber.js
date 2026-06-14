@@ -1,5 +1,5 @@
 /**
- * RSS Grabber free v2.0 – Frontend-Logik (abhängigkeitsfrei).
+ * RSS Grabber free v3.0 – Frontend-Logik (abhängigkeitsfrei).
  *
  * Ersetzt die frühere Einbindung von prototype.js + jQuery 1.4.2.
  * - Feed-Synchronisierung (feeds_synchronisieren.php)

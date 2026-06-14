@@ -1,4 +1,4 @@
-# RSS Grabber free v2.0
+# RSS Grabber free v3.0
 
 Ein schlankes PHP-Skript, das RSS-2.0- und Atom-Feeds einliest, deren Beiträge
 in einer MySQL-Datenbank speichert und anzeigt.
@@ -102,7 +102,8 @@ JS-Fehler, Navigation, korrekte Umlaut-Darstellung und der CRUD-Fluss.
 
 ## Dokumentation
 
+- [`INSTALLATION.md`](INSTALLATION.md) – **Installationsanleitung (v3.0)**
+- [`CHANGELOG.md`](CHANGELOG.md) – Release Notes (v3.0.0)
 - [`docs/SPECS.md`](docs/SPECS.md) – Spezifikation der Modernisierung
 - [`docs/PLAN.md`](docs/PLAN.md) – Umsetzungsplan
-- [`CHANGELOG.md`](CHANGELOG.md) – Änderungen
 - [`.docker/README.md`](.docker/README.md) – Docker-Umgebung

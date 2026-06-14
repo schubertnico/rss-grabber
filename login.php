@@ -1,9 +1,9 @@
 <?php
 /**
  * -----------------------------------------
- * RSS Grabber free v2.0 - Anmeldung
+ * RSS Grabber free v3.0 - Anmeldung
  * -----------------------------------------
- * @version free v2.0 (PHP 8.5)
+ * @version free v3.0 (PHP 8.5)
  */
 if (file_exists(__DIR__ . '/inc/config.php') === false) {
     if (headers_sent() === false) {

@@ -1,9 +1,9 @@
 <?php
 /**
  * -----------------------------------------
- * RSS Grabber free v2.0 - Abmeldung
+ * RSS Grabber free v3.0 - Abmeldung
  * -----------------------------------------
- * @version free v2.0 (PHP 8.5)
+ * @version free v3.0 (PHP 8.5)
  */
 require_once(__DIR__ . '/inc/auth.php');
 
