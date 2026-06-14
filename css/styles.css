@@ -1,0 +1,152 @@
+body{
+	font-size: 12px;
+	color:#000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 20px;
+	text-align: center;
+	background-color: #DDDDDD;
+}
+a:link {
+	color: #000000;
+}
+a:visited {
+	color: #000000;
+}
+a:hover {
+	color: #333333;
+}
+a:active {
+	color: #000000;
+}
+.beitrag_link, a.beitrag_link, a:visited.beitrag_link{
+	font-size: 11px;
+	color:#999;
+	text-decoration:none;
+}
+.beitrag_pubDate{
+	font-size: 11px;
+	color:#242424;
+	padding-bottom: 5px;
+}
+.beitrag_title, a.beitrag_title, a:visited.beitrag_title{
+	font-size: 15px;
+	padding-bottom: 10px;
+	font-weight:bolder;
+	text-decoration:none;
+}
+.beitrag_description{
+	font-size: 12px;
+	width: 600px;
+}
+.inhalt{
+	float: left;
+  	width: 600px;
+}
+.load{
+	float: left;
+	margin-left: 170px;
+  	width: 600px;
+}
+.menue{
+	float: left;
+ 	width: 150px;
+  	height: 300px;
+  	margin-right: 20px;
+}
+p.zurueck {
+  	padding:15px;
+  	text-align:right;
+  	clear:left;
+}
+.layout{
+	width: 900px;
+	margin: 0px auto;
+	padding: 15px;
+	text-align: left;
+	border: 1px solid #ccc;
+	background-color: #fff;
+}
+h1{
+	font-size: 17px;
+	padding: 0px;
+	margin: 0px;
+}
+h2{
+	font-size: 15px;
+	padding: 3px;
+}
+INPUT{
+	padding: 3px;
+	border: 1px  solid #ccc;
+}
+INPUT.submit{
+	padding:3px;
+	border:1px solid #777;
+	background-color: #ccc;
+	font-size:10px;
+}
+table{
+	font-size: 12px;
+	color:#000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	border-collapse : collapse;
+}
+caption{
+	font-size: 15px;
+	color:#000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	text-align: left;
+	font-weight: bold;
+}
+.einleitung{
+	padding: 25px 0 25px 0;
+}
+th{
+	border: 1px solid #ccc;
+	text-align: left;
+	background-color:#DDDDDD;
+	padding: 5px;
+}
+td{
+	padding: 5px 5px 0 5px;
+}
+.line{
+	background-color:#EBEBEB;
+	line-height: 25px;
+	height: 25px;
+	vertical-align: middle;
+	padding-bottom: 5px;
+	border: 1px solid #ccc;
+
+}
+.line_d{
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+.line_b{
+	border-left: 1px solid #ccc;
+}
+tfoot td{
+	border-top: 1px solid #ccc;
+}
+.erfolgreich{
+	color: green;
+}
+.fehler{
+	color: red;
+}
+.cb, .cb > a{
+	font-size:12px;
+	color: #ccc;
+	padding: 0 0 0 0px;
+	margin: 0 0 20px 0;
+}
+.nav{
+	font-size:14px;
+	padding:0;
+	margin: 0 0 0 0;
+	font-weight:bold;
+}

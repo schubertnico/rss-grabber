@@ -1,0 +1,26 @@
+<form action="feed_bearbeiten.php" method="post">
+<input name="id" value="{ID}" type="hidden">
+<h2>Neuen Feed eintragen</h2>
+<p style="padding:3px;">Hier können sie einen neuen Feed eintragen. Bitte geben sie die Homepage und die Feed URL an.</p>
+<div style="padding:3px;">{MELDUNG}</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;">Homepage</div>
+	<div style="float: left; width: 150px;"><input type="text" name="url" value="{HOMEPAGE}" style="width: 250px;"></div>
+	<div style="clear:left;"></div>
+</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;">Feed URL</div>
+	<div style="float: left; width: 150px;"><input type="text" name="feed_url" value="{FEED_URL}" style="width: 250px;"></div>
+	<div style="clear:left;"></div>
+</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;">Feed aktiv</div>
+	<div style="float: left; width: 150px;"><input type="radio" name="status" value="1" {STATUS_1}> Ja <input type="radio" name="status" value="2" {STATUS_2}> Nein</div>
+	<div style="clear:left;"></div>
+</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;"><input type="submit" class="submit" name="senden" value="speichern"></div>
+	<div style="float: left; width: 150px;"></div>
+	<div style="clear:left;"></div>
+</div>
+</form> 

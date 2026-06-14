@@ -1,0 +1,125 @@
+<html lang="de">
+<head>
+<title>RSS Grabber free v2.0</title>
+<link rel="stylesheet" type="text/css" href="css/styles.css">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- RSS Grabber free v2.0 © 2011 by http://www.php-space.info -->
+<META NAME="Copyright" CONTENT="RSS Grabber free v2.0 © 2011 by http://www.php-space.info">
+<script type="text/javascript" src="./java/prototype.js"></script>
+<script type="text/javascript" src="./java/jQuery.js"></script>
+<script type="text/javascript">
+	function sndreq(element){
+		$(element).innerHTML ='<img src="img/ajax-loader.gif" alt=""> Die Synchronisierung beginnt, bitte warten...';
+		new Ajax.PeriodicalUpdater(element, 'graber_ajax.php',{
+				method: 'post',
+				frequency: 2,
+				decay: 30
+		});
+	}
+	function getFileName() {
+	    lo=document.location.href;
+	    cut=lo.lastIndexOf('/');
+	    file='';
+	    if(cut>0) {
+	        file=lo.substr(cut);
+	    }
+	    if(file.length===0) {
+	        file='';
+	    }
+	    return file;
+	}
+	var j = jQuery.noConflict();
+	if(getFileName()==='/ausgabe.php'){
+		var ScrollerActive = false;
+		j(document).ready(function() {
+			j("body,html").scrollTop(0);
+			j(window).scroll(function() {
+				ScrollMe(0,document.getElementById("anz").innerHTML);
+
+			});
+		});
+	}
+	function ScrollMe(step, max) {
+		var Scroller = {
+			scrollPosition : 0,
+			loadStep : step,
+			RestartIn : 3000,
+			bottomMargin : 60,
+			MaxSteps: max,
+			checkloadParameter : function() {
+				var b = [];
+				for(var a=0; a<Scroller.MaxSteps;a++){
+					b[a]='ausgabe.php?ajax='+a;
+				}
+				return b;
+			},
+			checkPosition : function() {
+				var check = ((j("body,html").scrollTop()+Scroller.bottomMargin+j(window).height())-j(document).height());	// Scrollposition checken
+				if (check > 0) {
+					j(window).unbind();
+					Scroller.loadData();
+				} else {
+					ScrollerActive = false;
+				}
+			},
+			loadData : function() {
+				j('#load').html('<img src="img/ajax-loader.gif" alt="">');
+					var lp=Scroller.checkloadParameter();
+					var url = lp[Scroller.loadStep].split("?");
+					j.ajax({
+						type: "POST",
+						url: url[0],
+						data: url[1],
+						success: function(data){
+							window.setTimeout(function() {
+								Scroller.insertData('<br>'+data);
+							}, Scroller.RestartIn);
+						},
+						error: function(xhr, settings, exception) {
+							var msg = "Sorry, aber es war ein Fehler: ";
+							alert(msg + xhr.status + " " + xhr.statusText + "\nFile: " + this.url);
+							Scroller.exitScroller();
+						}
+					});
+			},
+			insertData : function(data) {
+				j('#inhalt').append(data);
+				j("body,html").scrollTop(Scroller.scrollPosition);
+				Scroller.exitScroller();
+			},
+			exitScroller : function() {
+				var lp=Scroller.checkloadParameter();
+				if (Scroller.loadStep < lp.length - 1) {
+						if (ScrollerActive) {
+							ScrollerActive = false;
+							Scroller.loadStep += 1;
+							j("body,html").scrollTop(Scroller.scrollPosition);
+							j(window).scroll(function() {
+								ScrollMe(parseInt(Scroller.loadStep),document.getElementById("anz").innerHTML);
+							})
+						}
+				} else { ScrollerActive = false; }
+				j('#load').html('');
+			}
+		};
+		if (!ScrollerActive) {
+			ScrollerActive = true;
+			Scroller.scrollPosition = j("body,html").scrollTop();
+			Scroller.checkPosition();
+		}
+	}
+
+</script>
+</head>
+<body>
+    <div class="layout">
+		<a name="oben"></a>
+		<h1>RSS Grabber free v2.0</h1>
+		<div class="cb">Script by <a href="https://www.php-space.info/rss-grabber/" target="_blank">PHP-Space.info</a></div>
+		<div class="menue">{NAVIGATION}</div>
+		<div class="inhalt" id="inhalt">{INHALT}</div>
+		<div class="load" id="load"></div>
+		<p class="zurueck"><a href="#oben">nach oben</a></p>
+	</div>
+</body>
+</html>
