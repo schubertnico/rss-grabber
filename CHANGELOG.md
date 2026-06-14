@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unveröffentlicht] – Repository-Schicht & Scroll-Bugfix
+
+### Behoben
+- **Endless-Scroll lud das gesamte Layout statt nur der Beiträge.** Ursache: Die
+  AJAX-Erkennung in `ausgabe.php` prüfte `(int)$ajax !== 0`, womit der erste
+  Nachlade-Schritt (`ajax=0`) die Vollseite zurückgab. Jetzt wird am
+  **Vorhandensein** des `ajax`-Parameters erkannt. Per E2E-Test abgesichert.
+
+### Geändert – Architektur
+- DB-/Geschäftslogik aus den Controllern in eine testbare Repository-Schicht
+  ausgelagert: `classes/FeedRepository.php` (alle Feed-/Post-/Sync-Queries) und
+  `classes/AdminRepository.php` (Login-Verifikation). Controller sind nun dünn
+  (Request → Repository → Render). Kein inline-SQL mehr in den Controllern.
+- Hilfsfunktion `rssg_feed_name()` (Host-Name aus URL; behebt nebenbei die
+  fehlerhafte Anzeige bei `https`-Feeds).
+
+### Tests
+- `FeedRepositoryTest` + `AdminRepositoryTest` (Integration gegen Test-DB) decken
+  die Repository-Schicht direkt ab; Unit-Test für `rssg_feed_name()`.
+- E2E-Test gegen die Scroll-Regression (Fragment statt Layout).
+
 ## [Unveröffentlicht] – Statisches Analyse-Gate (PHPStan)
 
 ### Hinzugefügt

@@ -24,60 +24,43 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/classes/FeedRepository.php');
 
 header("content-type: text/html; charset=UTF-8");
 
+$lang = [];
+$lang_navigation_top = [];
+$repo = new FeedRepository($link);
+$feeds = $repo->feedMap();
+$feedIds = array_keys($feeds);
+
+$perPage = max(1, (int)$anz_anzeige);
+// AJAX-Nachladen wird am VORHANDENSEIN des ajax-Parameters erkannt – auch
+// ajax=0 (erster Nachlade-Schritt) muss nur das Fragment liefern, nicht das
+// gesamte Layout.
+$isAjaxRequest = array_key_exists('ajax', $_POST);
 $ajax = (int)($_POST['ajax'] ?? 0);
-// Divisor/Limit absichern: verhindert DivisionByZeroError und ungültige LIMITs.
-$anz_anzeige = max(1, (int)$anz_anzeige);
-$feeds=[];
-$ausgabe='';
-$lang_navigation_top=[];
-$sql_select="SELECT url, id FROM `feeds`;";
-$query = mysqli_query($link, $sql_select);
 
-$sql_zusatz=[];
-$i=0;
-if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
-    while($daten = mysqli_fetch_assoc($query)){
-    	$feedId = (string)$daten['id'];
-    	$feedUrl = (string)$daten['url'];
-    	$feeds[$feedId]['url'] = $feedUrl;
-    	$url=explode("/",str_replace(["http://","www."],"",$feedUrl));
-    	$feeds[$feedId]['name'] = $url[0];
-    	$sql_zusatz[$i]=(int)$daten['id'];
-		$i++;
-    }
-}
-// Aus der DB stammende Feed-IDs als sichere Integer-Liste (leer -> 0 = kein Treffer).
-$idList = $sql_zusatz === [] ? '0' : implode(',', array_map('intval', $sql_zusatz));
-if($ajax!==0){
-	$start=($anz_anzeige*($ajax+1));
-	$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.(int)$start.', '.$anz_anzeige;
-
-  $query = mysqli_query($link, $sql_select);
-	if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
-	    while($daten = mysqli_fetch_assoc($query)){
-	    	$ausgabe .= rssg_render_feed_post($daten, $feeds, $max_laege_description);
-	    }
+if ($isAjaxRequest) {
+	$ausgabe = '';
+	$offset = $perPage * ($ajax + 1);
+	foreach ($repo->latestPosts($feedIds, $perPage, $offset) as $post) {
+		$ausgabe .= rssg_render_feed_post($post, $feeds, $max_laege_description);
 	}
 	echo $ausgabe;
 	exit;
 }
 
+$anz = (int)round($repo->countPosts($feedIds) / $perPage);
 
-$sql_select='SELECT id FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC';
-$query = mysqli_query($link, $sql_select);
-$anz= $query instanceof mysqli_result ? (int)round((int)mysqli_num_rows($query)/$anz_anzeige) : 0;
-
-$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in('.$idList.') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.$anz_anzeige;
-$query = mysqli_query($link, $sql_select);
-if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
-    while($daten = mysqli_fetch_assoc($query)){
-    	$ausgabe .= rssg_render_feed_post($daten, $feeds, $max_laege_description);
-    }
+$ausgabe = '';
+$posts = $repo->latestPosts($feedIds, $perPage, 0);
+if ($posts === []) {
+	$ausgabe = 'Es wurden noch keine Feeds synchronisiert. Bitte klicken Sie als erstes auf Feeds verwalten um einen Feed hinzuzufügen. Anschließend können sie dann über Feeds synchronisieren die Daten der einzelnen Feeds abfragen.';
 } else {
-	$ausgabe .='Es wurden noch keine Feeds synchronisiert. Bitte klicken Sie als erstes auf Feeds verwalten um einen Feed hinzuzufügen. Anschließend können sie dann über Feeds synchronisieren die Daten der einzelnen Feeds abfragen.';
+	foreach ($posts as $post) {
+		$ausgabe .= rssg_render_feed_post($post, $feeds, $max_laege_description);
+	}
 }
 $lang['inhalt']=$ausgabe.'<div id="anz" style="display: none;">'.$anz.'</div>';
 

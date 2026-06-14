@@ -47,6 +47,21 @@ if (function_exists("limitch") === false) {
         return stripslashes($value);
     }
 }
+if (function_exists("rssg_feed_name") === false) {
+    /**
+     * Leitet aus einer Feed-/Homepage-URL einen Anzeigenamen ab (Host ohne
+     * Schema und ohne fuehrendes "www.").
+     */
+    function rssg_feed_name(string $url): string
+    {
+        $stripped = preg_replace('#^https?://#i', '', trim($url));
+        $stripped = $stripped ?? $url;
+        $stripped = preg_replace('#^www\.#i', '', $stripped);
+        $stripped = $stripped ?? '';
+        $parts = explode('/', $stripped);
+        return $parts[0] !== '' ? $parts[0] : $stripped;
+    }
+}
 if (function_exists("rssg_render_feed_post") === false) {
     /**
      * Rendert einen Feed-Beitrag als HTML-Fragment (vollständig escaped).
