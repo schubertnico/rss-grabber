@@ -24,6 +24,13 @@ rssg_require_login();
 if (headers_sent() === false) {
     header('Content-Type: text/html; charset=UTF-8');
 }
+if (rssg_csrf_check($_POST['csrf'] ?? null) === false) {
+    if (headers_sent() === false) {
+        http_response_code(403);
+    }
+    echo 'Ungültiges Sicherheits-Token.';
+    exit;
+}
 if(function_exists('simplexml_load_file')===false){
   echo 'Es steht in PHP die Funktion simplexml_load_file() nicht zur Verfügung.';
   exit;

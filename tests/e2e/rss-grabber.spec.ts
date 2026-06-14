@@ -168,6 +168,23 @@ test('Feed bearbeiten: Formular lädt und speichert', async ({ page }) => {
     await expect(page.locator('body')).toContainText('geändert');
 });
 
+test('Synchronisierung: Klick aktualisiert den Status (Vanilla-JS)', async ({ page }) => {
+    const { jsErrors } = watch(page);
+    await page.goto('feeds_synchronisieren.php');
+    await expect(page.locator('[data-sync-trigger]')).toBeVisible();
+    await page.click('[data-sync-trigger]');
+    // Das #update-Feld erhält einen Synchronisierungs-Status.
+    await expect(page.locator('#update')).toContainText(/Feed|synchronisiert|Fertig|warten/i, { timeout: 15000 });
+    expect(jsErrors).toEqual([]);
+});
+
+test('CSRF: Sync-Aufruf ohne Token wird abgewiesen', async ({ page }) => {
+    // Session ist via beforeEach vorhanden, aber kein CSRF-Token -> 403.
+    const res = await page.context().request.post('graber_ajax.php', { form: {} });
+    expect(res.status()).toBe(403);
+    expect(await res.text()).toContain('Sicherheits-Token');
+});
+
 test('Logout beendet die Session', async ({ page }) => {
     await page.goto('feeds_verwalten.php');
     await expect(page.locator('h1')).toContainText('RSS Grabber free v2.0');
