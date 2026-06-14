@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unveröffentlicht] – Statisches Analyse-Gate (PHPStan)
+
+### Hinzugefügt
+- **PHPStan Level 8** (`phpstan.neon`) + `phpstan-phpunit`-Extension als
+  Dev-Abhängigkeit; Composer-Shortcut `composer analyse`. Lauf ist fehlerfrei.
+
+### Behoben (durch die Analyse aufgedeckt)
+- `inc/config.php`: redundante `@var string`-Tags entfernt.
+- `login.php`: fehlende `@var mysqli $link`-Annotation ergänzt.
+- `logout.php`: `setcookie((string)session_name(), …)`.
+- `classes/function.php`: `rssg_render_feed_post()`-PHPDoc auf `array-key`.
+
 ## [Unveröffentlicht] – Frontend-Modernisierung + CSRF-Sync
 
 ### Geändert

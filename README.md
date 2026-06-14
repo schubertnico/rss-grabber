@@ -76,6 +76,14 @@ docker exec rss-grabber_web bash -c "cd /var/www/html && vendor/bin/phpunit --co
   Controller-Smoke-Tests (jede Seite rendert ohne PHP-Fehler)
 - **Coverage:** ≥ 80 % über `classes/` (aktuell ~94 %)
 
+### Statische Analyse (PHPStan)
+
+```bash
+docker exec rss-grabber_web bash -c "cd /var/www/html && vendor/bin/phpstan analyse"
+```
+
+PHPStan **Level 8**, Lauf ist fehlerfrei. Kurzform: `composer analyse`.
+
 ### Playwright (E2E)
 
 Gegen die laufende Docker-Instanz (offizielles Playwright-Image im
