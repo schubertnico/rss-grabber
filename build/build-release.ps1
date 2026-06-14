@@ -21,8 +21,8 @@
     inc/config.php ($script_version), Fallback "3.0".
 
 .PARAMETER Tag
-    Erzeugt nach dem Build einen annotierten Git-Tag "v<version>" am aktuellen
-    HEAD (falls noch nicht vorhanden).
+    Erzeugt nach dem Build einen annotierten Git-Tag in SemVer-Form
+    "vX.Y.Z" (z. B. v3.0.0) am aktuellen HEAD (falls noch nicht vorhanden).
 
 .PARAMETER Push
     Pusht den Git-Tag nach origin (nur zusammen mit -Tag sinnvoll).
@@ -44,6 +44,12 @@ if (Test-Path $cfgPath) {
     if ($cfg -match "\`$script_version\s*=\s*'([^']+)'") { $ver = $Matches[1] }
 }
 if ($Version) { $ver = $Version }
+
+# SemVer-Form (X.Y.Z) fuer den Git-Tag ableiten; der ZIP-Name nutzt die
+# (ggf. kuerzere) Anzeige-Version.
+$semverParts = @($ver -split '\.')
+while ($semverParts.Count -lt 3) { $semverParts += '0' }
+$semver = ($semverParts[0..2]) -join '.'
 
 # --- Ausschluesse ---
 $excludeDirs = @(
@@ -100,7 +106,7 @@ Write-Host ("Version: v{0}  |  Dateien: {1}  |  Groesse: {2} KB" -f $ver, $selec
 
 # --- Optional: Git-Tag erzeugen / pushen ---
 if ($Tag) {
-    $tagName = "v$ver"
+    $tagName = "v$semver"
     $existing = & git -C $root tag --list $tagName
     if ([string]::IsNullOrWhiteSpace($existing)) {
         & git -C $root tag -a $tagName -m "RSS Grabber free $tagName"
