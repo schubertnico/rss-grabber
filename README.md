@@ -29,8 +29,22 @@ docker compose up -d --build
 | Mailpit     | http://localhost:8342        |
 
 Die Datenbank wird beim ersten Start über `.docker/init.sql` automatisch mit den
-Tabellen `feeds`/`feeds_post` (utf8mb4) und Beispiel-Feeds befüllt;
+Tabellen `feeds`/`feeds_post`/`admin` (utf8mb4) und Beispiel-Feeds befüllt;
 `inc/config.php` ist passend vorkonfiguriert. Die Anwendung ist sofort nutzbar.
+
+### Anmeldung
+
+Der Verwaltungsbereich (Feeds anlegen/bearbeiten/löschen, Synchronisierung) ist
+durch ein Login geschützt. Öffentlich erreichbar ist nur die Beitragsanzeige
+(`ausgabe.php`).
+
+| Feld     | Wert    |
+|----------|---------|
+| Benutzer | `admin` |
+| Passwort | `admin` |
+
+> ⚠️ **Das Default-Passwort nach der Installation umgehend ändern** (Hash in der
+> Tabelle `admin` aktualisieren).
 
 ## Aufbau
 

@@ -19,6 +19,8 @@ if (file_exists(__DIR__ . '/inc/config.php') === false) {
 require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/inc/auth.php');
+rssg_require_login();
 if (headers_sent() === false) {
     header('Content-Type: text/html; charset=UTF-8');
 }
@@ -59,8 +61,14 @@ if (mysqli_num_rows($query) != 0) {
       }
     }
     $status = (($xml === false) ? 'fehler' : 'erfolgreich');
-    $sql_update = "UPDATE `feeds` SET `last_check` = '" . (time() + 3600) . "', `last_status`='" . $status . "' WHERE `id` = '" . $daten["id"] . "' LIMIT 1;";
-    mysqli_query($link, $sql_update) || die(mysqli_errno($link));
+    $lastCheck = time() + 3600;
+    $feedId = (int)$daten["id"];
+    $stmtUpd = mysqli_prepare($link, "UPDATE `feeds` SET `last_check` = ?, `last_status` = ? WHERE `id` = ? LIMIT 1");
+    if ($stmtUpd !== false) {
+      mysqli_stmt_bind_param($stmtUpd, "isi", $lastCheck, $status, $feedId);
+      mysqli_stmt_execute($stmtUpd);
+      mysqli_stmt_close($stmtUpd);
+    }
   }
   if (($anz_gesamt - $anz_offen) == 0) {
       $ausgabe .= '<img src="img/ajax-loader.gif" alt=""> Die Synchronisierung beginnt, bitte warten...';

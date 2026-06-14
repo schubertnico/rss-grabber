@@ -21,6 +21,8 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/auth.php');
+rssg_require_login();
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];

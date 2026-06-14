@@ -15,29 +15,32 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
  * (Warning/Notice/Deprecation) in eine Exception – die Tests scheitern also,
  * sobald ein Controller unter PHP 8.5 irgendeinen Fehler erzeugt.
  *
- * Voraussetzung: Ausfuehrung im Web-Container (DB-Host "db" erreichbar).
+ * Geschützte Controller werden mit einer angemeldeten Session aufgerufen.
+ * Voraussetzung: Ausführung im Web-Container (DB-Host "db" erreichbar).
  */
 final class ControllerSmokeTest extends TestCase
 {
     /**
-     * @return array<string, array{0: string}>
+     * @return array<string, array{0: string, 1: bool}>
      */
     public static function controllerProvider(): array
     {
         return [
-            'ausgabe.php'               => ['ausgabe.php'],
-            'feeds_verwalten.php'       => ['feeds_verwalten.php'],
-            'feed_hinzufuegen.php'      => ['feed_hinzufuegen.php'],
-            'feed_bearbeiten.php'       => ['feed_bearbeiten.php'],
-            'feeds_synchronisieren.php' => ['feeds_synchronisieren.php'],
-            'premium-version.php'       => ['premium-version.php'],
+            // controller, benoetigtLogin
+            'ausgabe.php'               => ['ausgabe.php', false],
+            'premium-version.php'       => ['premium-version.php', false],
+            'login.php'                 => ['login.php', false],
+            'feeds_verwalten.php'       => ['feeds_verwalten.php', true],
+            'feed_hinzufuegen.php'      => ['feed_hinzufuegen.php', true],
+            'feed_bearbeiten.php'       => ['feed_bearbeiten.php', true],
+            'feeds_synchronisieren.php' => ['feeds_synchronisieren.php', true],
         ];
     }
 
     #[DataProvider('controllerProvider')]
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
-    public function testControllerRendertOhnePhpFehler(string $controller): void
+    public function testControllerRendertOhnePhpFehler(string $controller, bool $needsLogin): void
     {
         $host = getenv('RSSG_DB_HOST') ?: 'db';
         $probe = @mysqli_connect($host, 'rss_grabber', 'rss_grabber_secret', 'rss_grabber');
@@ -46,6 +49,15 @@ final class ControllerSmokeTest extends TestCase
         }
         mysqli_close($probe);
 
+        // Session vor jeglicher Ausgabe starten (auth.php/login.php starten sonst
+        // mitten im Output-Buffer eine Session).
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+        if ($needsLogin) {
+            $_SESSION['rssg_admin'] = 'admin';
+        }
+
         $path = RSSG_ROOT . '/' . $controller;
         self::assertFileExists($path);
 
@@ -53,13 +65,11 @@ final class ControllerSmokeTest extends TestCase
         require $path;
         $html = (string)ob_get_clean();
 
-        // Vollstaendige Seite gerendert (Layout vorhanden).
-        self::assertStringContainsString('</html>', $html, $controller . ' liefert keine vollstaendige Seite.');
-        // Kein PHP-Fehlertext in der Ausgabe.
+        self::assertStringContainsString('</html>', $html, $controller . ' liefert keine vollständige Seite.');
         self::assertDoesNotMatchRegularExpression(
             '/(Fatal error|Parse error|Deprecated:|Warning:|Notice:|Uncaught)/',
             $html,
-            $controller . ' enthaelt PHP-Fehlerausgabe.'
+            $controller . ' enthält PHP-Fehlerausgabe.'
         );
     }
 }

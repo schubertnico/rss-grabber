@@ -22,18 +22,29 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/auth.php');
+rssg_require_login();
 $deleteId = (int)($_GET['id'] ?? 0);
-$delete = $_GET['delete'] ?? '';
+$delete = (string)($_GET['delete'] ?? '');
+$csrfToken = rssg_csrf_token();
 $medlung='';
 $feeds=[];
 $lang_navigation_top=[];
 $ausgabe='';
-if($delete == 1){
-	$sql_delete="DELETE FROM `feeds` WHERE `id` = '".mysqli_real_escape_string($link, (string)$deleteId)."' LIMIT 1;";
-	if(@mysqli_query($link, $sql_delete)!=false){
-		$medlung='<span class="erfolgreich">Der Eintrag wurde gelöscht.</span>';
+if($delete === '1' && $deleteId > 0){
+	if (rssg_csrf_check($_GET['csrf'] ?? null) === false) {
+		$medlung='<span class="fehler">Ungültiges Sicherheits-Token.</span>';
 	} else {
-		$medlung='<span class="fehler">Der Eintrag konnte nicht gelöscht.</span>';
+		$ok = false;
+		$stmt = mysqli_prepare($link, "DELETE FROM `feeds` WHERE `id` = ? LIMIT 1");
+		if ($stmt !== false) {
+			mysqli_stmt_bind_param($stmt, 'i', $deleteId);
+			$ok = mysqli_stmt_execute($stmt);
+			mysqli_stmt_close($stmt);
+		}
+		$medlung = $ok
+			? '<span class="erfolgreich">Der Eintrag wurde gelöscht.</span>'
+			: '<span class="fehler">Der Eintrag konnte nicht gelöscht.</span>';
 	}
 }
 
@@ -66,11 +77,11 @@ if($anz!=0){
     	$i++;
 		$ausgabe .='<tr>';
 		$ausgabe .='	<td class="line_b">Homepage:</td>';
-		$ausgabe .='	<td class="line_d"><a href="'.$daten['url'].'" target="_blank">'.$daten['url'].'</a></td>';
+		$ausgabe .='	<td class="line_d"><a href="'.rssg_safe_url((string)$daten['url']).'" target="_blank">'.rssg_e((string)$daten['url']).'</a></td>';
 		$ausgabe .='</tr>';
 		$ausgabe .='<tr>';
 		$ausgabe .='	<td class="line_b">Feed URL:</td>';
-		$ausgabe .='	<td class="line_d"><a href="'.$daten['feed_url'].'" target="_blank">'.$daten['feed_url'].'</a></td>';
+		$ausgabe .='	<td class="line_d"><a href="'.rssg_safe_url((string)$daten['feed_url']).'" target="_blank">'.rssg_e((string)$daten['feed_url']).'</a></td>';
 		$ausgabe .='</tr>';
 		$ausgabe .='<tr>';
 		$ausgabe .='	<td class="line_b">Feed aktiv:</td>';
@@ -82,10 +93,10 @@ if($anz!=0){
 		$ausgabe .='</tr>';
 		$ausgabe .='<tr>';
 		$ausgabe .='	<td class="line_b">Status:</td>';
-		$ausgabe .='	<td class="line_d">'.ucfirst((string)$daten['last_status']).'</td>';
+		$ausgabe .='	<td class="line_d">'.rssg_e(ucfirst((string)$daten['last_status'])).'</td>';
 		$ausgabe .='</tr>';
 		$ausgabe .='<tr>';
-			$ausgabe .='	<td class="line" colspan="2"><img src="img/pfeil.jpg"><a href="'.htmlspecialchars((string)($_SERVER['PHP_SELF'] ?? '')).'?delete=1&id='.$daten['id'].'">Löschen</a>, <a href="feed_bearbeiten.php?id='.$daten['id'].'">Bearbeiten</a></td>';
+			$ausgabe .='	<td class="line" colspan="2"><img src="img/pfeil.jpg"><a href="'.rssg_e((string)($_SERVER['PHP_SELF'] ?? '')).'?delete=1&id='.(int)$daten['id'].'&csrf='.rssg_e($csrfToken).'">Löschen</a>, <a href="feed_bearbeiten.php?id='.(int)$daten['id'].'">Bearbeiten</a></td>';
 			$ausgabe .='</tr>';
 
     }

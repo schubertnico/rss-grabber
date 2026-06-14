@@ -45,7 +45,7 @@ if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
     	$feeds[$feedId]['url'] = $feedUrl;
     	$url=explode("/",str_replace(["http://","www."],"",$feedUrl));
     	$feeds[$feedId]['name'] = $url[0];
-    	$sql_zusatz[$i]=$daten['id'];
+    	$sql_zusatz[$i]=(int)$daten['id'];
 		$i++;
     }
 }
@@ -84,8 +84,8 @@ if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
     	$datenFeedsId = (string)$daten['feeds_id'];
     	$datenPubDate = (string)$daten['pubDate'];
     	$datenDescription = (string)$daten['description'];
-    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.($feeds[$datenFeedsId]['url'] ?? '#').'" target="_blank">'.($feeds[$datenFeedsId]['name'] ?? 'unbekannt').'</a> am '.date_mysql2german($datenPubDate).'</div>';
-    	$ausgabe .='<div class="beitrag_description">'.limitch(strip_tags($datenDescription),$max_laege_description).'</div><div class="beitrag_link"><a href="'.$datenLink.'" target="_blank" class="beitrag_link">'.limitch($datenLink,95).'</a></div><br><br>';
+    	$ausgabe .='<a href="'.rssg_safe_url($datenLink).'" target="_blank" class="beitrag_title" title="'.rssg_e($datenTitle).'">'.rssg_e($datenTitle).'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.rssg_safe_url((string)($feeds[$datenFeedsId]['url'] ?? '#')).'" target="_blank">'.rssg_e((string)($feeds[$datenFeedsId]['name'] ?? 'unbekannt')).'</a> am '.rssg_e(date_mysql2german($datenPubDate)).'</div>';
+    	$ausgabe .='<div class="beitrag_description">'.rssg_e(limitch(strip_tags($datenDescription),$max_laege_description)).'</div><div class="beitrag_link"><a href="'.rssg_safe_url($datenLink).'" target="_blank" class="beitrag_link">'.rssg_e(limitch($datenLink,95)).'</a></div><br><br>';
     }
 } else {
 	$ausgabe .='Es wurden noch keine Feeds synchronisiert. Bitte klicken Sie als erstes auf Feeds verwalten um einen Feed hinzuzufügen. Anschließend können sie dann über Feeds synchronisieren die Daten der einzelnen Feeds abfragen.';

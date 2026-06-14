@@ -147,6 +147,20 @@ if($_POST['senden']==1){
 				if (!$result) {
 				   $fehler .='- Es konnte die Datenbank Tabelle "feeds_post" nicht angelegt werden.<br>';
 				}
+				$sql="CREATE TABLE IF NOT EXISTS `admin` (
+                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                  `username` varchar(64) NOT NULL,
+                  `password_hash` varchar(255) NOT NULL,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `username` (`username`)
+                ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+				$result = @mysqli_query($link, $sql);
+				if (!$result) {
+				   $fehler .='- Es konnte die Datenbank Tabelle "admin" nicht angelegt werden.<br>';
+				}
+				// Default-Admin (admin / admin) anlegen, falls noch keiner existiert.
+				$adminHash = '$2y$12$u7JQc1MKJTjjJBY7e6Y61uWg4Sy4MxxvFKpnpen1.mlUQ1PaINhTm';
+				@mysqli_query($link, "INSERT INTO `admin` (`username`,`password_hash`) SELECT 'admin','".$adminHash."' WHERE NOT EXISTS (SELECT 1 FROM `admin` WHERE `username`='admin');");
 				$sql_delete="DELETE FROM `feeds`;";
 				@mysqli_query($link, $sql_delete);
 				$sql="INSERT INTO `feeds` (`id`, `feed_url`, `url`, `check`, `last_check`, `last_status`) VALUES

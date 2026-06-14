@@ -25,6 +25,20 @@ CREATE TABLE IF NOT EXISTS `feeds_post` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
+-- Admin-Zugang fuer den geschuetzten Verwaltungsbereich.
+-- Default: admin / admin  -> nach der Installation aendern!
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `admin` (`username`, `password_hash`)
+SELECT 'admin', '$2y$12$u7JQc1MKJTjjJBY7e6Y61uWg4Sy4MxxvFKpnpen1.mlUQ1PaINhTm'
+WHERE NOT EXISTS (SELECT 1 FROM `admin` WHERE `username` = 'admin');
+
 DELETE FROM `feeds`;
 INSERT INTO `feeds` (`id`, `feed_url`, `url`, `check`, `last_check`, `last_status`) VALUES
 (1, 'https://www.php-space.info/feed.xml', 'https://www.php-space.info/php/space/news.php', 1, 0, ''),
