@@ -19,8 +19,19 @@
 .PARAMETER Version
     Optionale Versionsbezeichnung fuer den Dateinamen. Standard: aus
     inc/config.php ($script_version), Fallback "3.0".
+
+.PARAMETER Tag
+    Erzeugt nach dem Build einen annotierten Git-Tag "v<version>" am aktuellen
+    HEAD (falls noch nicht vorhanden).
+
+.PARAMETER Push
+    Pusht den Git-Tag nach origin (nur zusammen mit -Tag sinnvoll).
 #>
-param([string]$Version = "")
+param(
+    [string]$Version = "",
+    [switch]$Tag,
+    [switch]$Push
+)
 
 $ErrorActionPreference = "Stop"
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
@@ -86,3 +97,22 @@ finally {
 $sizeKb = [math]::Round((Get-Item $zipPath).Length / 1KB, 1)
 Write-Host "Release-ZIP erstellt: $zipPath"
 Write-Host ("Version: v{0}  |  Dateien: {1}  |  Groesse: {2} KB" -f $ver, $selected.Count, $sizeKb)
+
+# --- Optional: Git-Tag erzeugen / pushen ---
+if ($Tag) {
+    $tagName = "v$ver"
+    $existing = & git -C $root tag --list $tagName
+    if ([string]::IsNullOrWhiteSpace($existing)) {
+        & git -C $root tag -a $tagName -m "RSS Grabber free $tagName"
+        if ($LASTEXITCODE -eq 0) { Write-Host "Git-Tag $tagName erstellt." }
+        else { Write-Host "Git-Tag $tagName konnte nicht erstellt werden." }
+    }
+    else {
+        Write-Host "Git-Tag $tagName existiert bereits."
+    }
+    if ($Push) {
+        & git -C $root push origin $tagName
+        if ($LASTEXITCODE -eq 0) { Write-Host "Git-Tag $tagName nach origin gepusht." }
+        else { Write-Host "Push von $tagName fehlgeschlagen (evtl. bereits auf origin vorhanden)." }
+    }
+}
