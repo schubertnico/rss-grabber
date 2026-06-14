@@ -38,18 +38,25 @@ $query = mysqli_query($link, $sql_select);
 $anz_offen = ($query instanceof mysqli_result) ? (int)mysqli_num_rows($query) : 0;
 
 $sql_select = "SELECT id, feed_url FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . time() . "' LIMIT " . max(1, (int)$anzahl_grabber_pro_lauf) . ";";
-$query = mysqli_query($link, $sql_select) or die(mysqli_errno($link));
+$query = mysqli_query($link, $sql_select);
 if (!$query instanceof mysqli_result) {
-    die('Query failed');
+    echo 'Die Synchronisierung konnte derzeit nicht gestartet werden.';
+    exit;
 }
 
 if (mysqli_num_rows($query) != 0) {
   while ($daten = mysqli_fetch_assoc($query)) {
-    // libxml-Parsefehler intern halten und Stream-Warnungen unterdrücken,
-    // damit nicht erreichbare/ungültige Feeds keine PHP-Warnungen in die
-    // AJAX-Antwort schreiben.
+    // Feed mit Timeout laden, damit ein hängender Feed den Lauf nicht blockiert.
+    // libxml-Parsefehler intern halten und Stream-Warnungen unterdrücken, damit
+    // nicht erreichbare/ungültige Feeds keine PHP-Warnungen in die AJAX-Antwort
+    // schreiben.
     libxml_use_internal_errors(true);
-    $xml = @simplexml_load_file((string)$daten["feed_url"], "SimpleXMLElement", LIBXML_NOCDATA);
+    $ctx = stream_context_create([
+      'http'  => ['timeout' => 10, 'user_agent' => 'RSS-Grabber/2.0'],
+      'https' => ['timeout' => 10],
+    ]);
+    $raw = @file_get_contents((string)$daten["feed_url"], false, $ctx);
+    $xml = ($raw !== false) ? @simplexml_load_string($raw, "SimpleXMLElement", LIBXML_NOCDATA) : false;
     libxml_clear_errors();
 
     if ($xml !== false && isset($iso_to_utf)) {

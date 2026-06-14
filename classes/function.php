@@ -38,13 +38,37 @@ if (function_exists("limitch") === false) {
     function limitch(?string $value, int $lenght): string
     {
         $value = $value ?? '';
-        if (strlen($value) >= $lenght) {
-            $limited = "";
-            $limited .= substr($value, 0, $lenght);
-            $limited .= "...";
+        // mb_*-Funktionen: kürzt zeichen- statt byteweise und zerschneidet so
+        // keine Umlaute (ä ö ü ß) mitten im Multibyte-Zeichen.
+        if (mb_strlen($value, 'UTF-8') >= $lenght) {
+            $limited = mb_substr($value, 0, $lenght, 'UTF-8') . "...";
             return stripslashes($limited);
         }
         return stripslashes($value);
+    }
+}
+if (function_exists("rssg_render_feed_post") === false) {
+    /**
+     * Rendert einen Feed-Beitrag als HTML-Fragment (vollständig escaped).
+     *
+     * @param array<string, mixed> $row   Zeile aus der Tabelle feeds_post
+     * @param array<string, array{url?: string, name?: string}> $feeds Feed-Metadaten je feeds_id
+     */
+    function rssg_render_feed_post(array $row, array $feeds, int $maxDesc): string
+    {
+        $link = (string)($row['link'] ?? '');
+        $title = (string)($row['title'] ?? '');
+        $feedsId = (string)($row['feeds_id'] ?? '');
+        $pubDate = (string)($row['pubDate'] ?? '');
+        $description = (string)($row['description'] ?? '');
+        $feedUrl = (string)($feeds[$feedsId]['url'] ?? '#');
+        $feedName = (string)($feeds[$feedsId]['name'] ?? 'unbekannt');
+
+        $html  = '<a href="' . rssg_safe_url($link) . '" target="_blank" class="beitrag_title" title="' . rssg_e($title) . '">' . rssg_e($title) . '</a><br>';
+        $html .= '<div class="beitrag_pubDate">Geschrieben von <a href="' . rssg_safe_url($feedUrl) . '" target="_blank">' . rssg_e($feedName) . '</a> am ' . rssg_e(date_mysql2german($pubDate)) . '</div>';
+        $html .= '<div class="beitrag_description">' . rssg_e(limitch(strip_tags($description), $maxDesc)) . '</div>';
+        $html .= '<div class="beitrag_link"><a href="' . rssg_safe_url($link) . '" target="_blank" class="beitrag_link">' . rssg_e(limitch($link, 95)) . '</a></div><br><br>';
+        return $html;
     }
 }
 if (function_exists("date_mysql2german") === false) {
