@@ -11,6 +11,29 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Dadurch unterstützen Sie die Weiterentwicklung und würdigen diese Arbeit.
  */
+if (function_exists("rssg_e") === false) {
+    /**
+     * HTML-Escaping fuer die sichere Ausgabe von DB-/Benutzerinhalten (UTF-8).
+     */
+    function rssg_e(?string $value): string
+    {
+        return htmlspecialchars($value ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}
+if (function_exists("rssg_safe_url") === false) {
+    /**
+     * Gibt eine fuer href sichere URL zurueck: nur http/https, sonst '#'.
+     * Das Ergebnis ist HTML-escaped.
+     */
+    function rssg_safe_url(?string $url): string
+    {
+        $url = trim($url ?? '');
+        if ($url === '' || preg_match('#^https?://#i', $url) !== 1) {
+            return '#';
+        }
+        return rssg_e($url);
+    }
+}
 if (function_exists("limitch") === false) {
     function limitch(?string $value, int $lenght): string
     {
@@ -55,6 +78,35 @@ if (function_exists("date_mysql2german") === false) {
         );
     }
 }
+if (function_exists("rssg_store_feed_post") === false) {
+  /**
+   * Speichert einen Feed-Beitrag per Prepared Statement, sofern er (anhand von
+   * feeds_id + link) noch nicht existiert. Injection-sicher.
+   */
+  function rssg_store_feed_post(mysqli $link, int $feedsId, string $pubDate, string $linkUrl, string $title, string $description): void
+  {
+    $check = mysqli_prepare($link, 'SELECT id FROM `feeds_post` WHERE `feeds_id` = ? AND `link` = ? LIMIT 1');
+    if ($check === false) {
+      return;
+    }
+    mysqli_stmt_bind_param($check, 'is', $feedsId, $linkUrl);
+    mysqli_stmt_execute($check);
+    mysqli_stmt_store_result($check);
+    $exists = mysqli_stmt_num_rows($check) > 0;
+    mysqli_stmt_close($check);
+    if ($exists) {
+      return;
+    }
+
+    $insert = mysqli_prepare($link, 'INSERT INTO `feeds_post` (`feeds_id`,`pubDate`,`link`,`title`,`description`) VALUES (?, ?, ?, ?, ?)');
+    if ($insert === false) {
+      return;
+    }
+    mysqli_stmt_bind_param($insert, 'issss', $feedsId, $pubDate, $linkUrl, $title, $description);
+    mysqli_stmt_execute($insert);
+    mysqli_stmt_close($insert);
+  }
+}
 if (function_exists("addItem") === false) {
   /**
    * Speichert einen Feed-Beitrag (RSS 2.0 oder Atom) in der Tabelle feeds_post.
@@ -81,58 +133,28 @@ if (function_exists("addItem") === false) {
         $vLink = (string)$v->link;
         $vTitle = (string)$v->title;
         $vDescription = (string)$v->description;
-        $vPubDate = (string)$v->pubDate;
-
-        $sql_select2 = "SELECT id FROM `feeds_post` WHERE `feeds_id` = '" . $id . "' AND `link`='" . mysqli_real_escape_string($link, $vLink) . "' LIMIT 1 ;";
-        $query2 = mysqli_query($link, $sql_select2);
-        if (!$query2 instanceof mysqli_result) {
-          die((string)mysqli_errno($link));
-        }
-        if (mysqli_num_rows($query2) == 0) {
-          $strtotime = strtotime($vPubDate);
-          $vPubDate = date("Y-m-d H:i:s", $strtotime !== false ? $strtotime : time());
-          $sql_insert = "INSERT INTO `feeds_post` (`feeds_id`,`pubDate`,`link`,`title`,`description`) VALUES ('" . $id . "',
-        '" . mysqli_real_escape_string($link, $vPubDate) . "',
-        '" . mysqli_real_escape_string($link, $vLink) . "',
-        '" . mysqli_real_escape_string($link, $vTitle) . "',
-        '" . mysqli_real_escape_string($link, $vDescription) . "');";
-          mysqli_query($link, $sql_insert) || die((string)mysqli_errno($link));
-        }
+        $strtotime = strtotime((string)$v->pubDate);
+        $vPubDate = date("Y-m-d H:i:s", $strtotime !== false ? $strtotime : time());
+        rssg_store_feed_post($link, $id, $vPubDate, $vLink, $vTitle, $vDescription);
         break;
       case 2:
         // Atom
         $vTitle = (string)$v->title;
-        $vDescription = (string)$v->description;
-        $vLink = (string)$v->link;
-        $vPublished = (string)$v->published;
         $vContent = (string)$v->content;
-
-        $sql_select2 = "SELECT id FROM `feeds_post` WHERE `feeds_id` = '" . $id . "' AND `link`='" . mysqli_real_escape_string($link, $vLink) . "' LIMIT 1 ;";
-        $query2 = mysqli_query($link, $sql_select2);
-        if (!$query2 instanceof mysqli_result) {
-          die((string)mysqli_errno($link));
-        }
-        if (mysqli_num_rows($query2) == 0) {
-          /** @var \SimpleXMLElement|null $linkElement */
-          $linkElement = $v->link;
-          $linkAttributes = $linkElement !== null ? $linkElement->attributes() : null;
-          $url = '';
-          if ($linkAttributes !== null) {
-            foreach ($linkAttributes as $key => $value) {
-              if ($key == 'href') {
-                $url = (string)$value;
-              }
+        /** @var \SimpleXMLElement|null $linkElement */
+        $linkElement = $v->link;
+        $linkAttributes = $linkElement !== null ? $linkElement->attributes() : null;
+        $url = '';
+        if ($linkAttributes !== null) {
+          foreach ($linkAttributes as $key => $value) {
+            if ($key == 'href') {
+              $url = (string)$value;
             }
           }
-
-          $strtotime = strtotime($vPublished);
-          $sql_insert = "INSERT INTO `feeds_post` (`feeds_id`,`pubDate`,`link`,`title`,`description`) VALUES ('" . $id . "',
-        '" . mysqli_real_escape_string($link, date('Y-m-d H:i:s', $strtotime !== false ? $strtotime : time())) . "',
-        '" . mysqli_real_escape_string($link, $url) . "',
-        '" . mysqli_real_escape_string($link, $vTitle) . "',
-        '" . mysqli_real_escape_string($link, $vContent) . "');";
-          mysqli_query($link, $sql_insert) || die((string)mysqli_errno($link));
         }
+        $strtotime = strtotime((string)$v->published);
+        $vPubDate = date('Y-m-d H:i:s', $strtotime !== false ? $strtotime : time());
+        rssg_store_feed_post($link, $id, $vPubDate, $url, $vTitle, $vContent);
         break;
     }
   }

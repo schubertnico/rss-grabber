@@ -1,5 +1,28 @@
 # Changelog
 
+## [Unveröffentlicht] – Sicherheitshärtung (Auth, CSRF, XSS, SQLi)
+
+### Hinzugefügt
+- **Zugriffsschutz:** Session-basiertes Login (`login.php`/`logout.php`) mit
+  Admin-Tabelle in der DB (bcrypt). Geschützt: Feeds verwalten/anlegen/bearbeiten,
+  Synchronisierung. Öffentlich bleibt nur `ausgabe.php`/`premium-version.php`.
+  Default-Zugang **admin / admin** (per Init-Skript, **bitte sofort ändern**).
+- **CSRF-Schutz:** Pro-Session-Token (`random_bytes`, `hash_equals`) für alle
+  schreibenden Aktionen (anlegen, bearbeiten, löschen).
+- **DB:** Neue Tabelle `admin` in `.docker/init.sql` und `install/index.php`.
+- `inc/auth.php` (Session/CSRF/Login-Helfer), `rssg_e()`/`rssg_safe_url()`.
+
+### Geändert
+- **XSS:** Alle DB-Inhalte werden beim Output mit `htmlspecialchars` kodiert
+  (`ausgabe.php`, `feeds_verwalten.php`); `href` nur mit http(s)-Schema.
+- **SQL-Injection:** Login, Feed anlegen/bearbeiten/löschen, `addItem()` und das
+  Sync-Update nutzen jetzt **Prepared Statements**; ID-Listen per `intval`.
+
+### Tests
+- `tests/Unit/AuthTest.php` (CSRF, Escaping, Passwort-Hash).
+- Controller-Smoke-Tests mit angemeldeter Session; E2E um Login-,
+  CSRF-/XSS- und Logout-Tests erweitert.
+
 ## [Unveröffentlicht] – PHP 8.5 & UTF-8 Modernisierung
 
 ### Geändert – UTF-8 / Umlaute

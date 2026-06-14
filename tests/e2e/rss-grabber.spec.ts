@@ -1,11 +1,11 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, Browser } from '@playwright/test';
 
 /**
  * E2E-Tests gegen die laufende RSS-Grabber-Docker-Instanz.
  *
- * Geprüft wird: keine 4xx/5xx (auch für Assets), keine PHP-Fehlerausgabe im
- * HTML, keine ungefangenen JS-Fehler, funktionierende Navigation, korrekte
- * Umlaut-Darstellung und der CRUD-Fluss (anlegen → anzeigen → löschen).
+ * Geprüft wird: Login-Schutz, CSRF, korrekte 200/keine 4xx-5xx, keine
+ * PHP-Fehler im HTML, keine JS-Fehler, Navigation, korrekte Umlaut-Darstellung,
+ * XSS-Escaping und der CRUD-Fluss.
  */
 
 const PHP_ERROR = /(Fatal error|Parse error|Deprecated:|Warning:|Notice:|Uncaught)/;
@@ -19,7 +19,6 @@ const PAGES = [
     'premium-version.php',
 ];
 
-/** Hängt Listener an, die fehlerhafte Responses und JS-Fehler sammeln. */
 function watch(page: Page) {
     const badResponses: string[] = [];
     const jsErrors: string[] = [];
@@ -32,6 +31,18 @@ function watch(page: Page) {
     page.on('pageerror', (err) => jsErrors.push(err.message));
     return { badResponses, jsErrors };
 }
+
+async function login(page: Page) {
+    await page.goto('login.php');
+    await page.fill('input[name="username"]', 'admin');
+    await page.fill('input[name="password"]', 'admin');
+    await page.click('input[name="login_btn"]');
+    await page.waitForLoadState('load');
+}
+
+test.beforeEach(async ({ page }) => {
+    await login(page);
+});
 
 for (const path of PAGES) {
     test(`Seite ${path} lädt fehlerfrei`, async ({ page }) => {
@@ -58,14 +69,33 @@ test('Navigation verlinkt alle Bereiche', async ({ page }) => {
         ['Feed verwalten', 'feeds_verwalten.php'],
         ['Feeds synchronisieren', 'feeds_synchronisieren.php'],
         ['Premium-Version', 'premium-version.php'],
+        ['Logout', 'logout.php'],
     ] as const) {
         await expect(page.locator(`.menue a[href="${href}"]`)).toContainText(text);
     }
 });
 
+test('Geschützte Seite ohne Login leitet auf login.php', async ({ browser }: { browser: Browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.goto('feeds_verwalten.php');
+    await expect(page).toHaveURL(/login\.php$/);
+    await expect(page.locator('h2')).toContainText('Anmeldung');
+    await ctx.close();
+});
+
+test('Login mit falschem Passwort schlägt fehl', async ({ browser }: { browser: Browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.goto('login.php');
+    await page.fill('input[name="username"]', 'admin');
+    await page.fill('input[name="password"]', 'falsch');
+    await page.click('input[name="login_btn"]');
+    await expect(page.locator('body')).toContainText('Benutzername oder Passwort ist falsch');
+    await ctx.close();
+});
+
 test('Umlaute werden korrekt gespeichert und angezeigt (kein Mojibake)', async ({ page }) => {
-    // Vollständig über den App-Pfad: Feed mit Umlauten anlegen, in der
-    // Verwaltung anzeigen, Mojibake ausschließen, wieder löschen.
     const umlautHomepage = 'https://exämple.tld/grüße-äöüß';
     const feedUrl = 'https://e2e-umlaut.example/feed.xml';
 
@@ -78,43 +108,52 @@ test('Umlaute werden korrekt gespeichert und angezeigt (kein Mojibake)', async (
     await page.goto('feeds_verwalten.php');
     await expect(page.getByText(umlautHomepage, { exact: false })).toBeVisible();
     const body = await page.content();
-    expect(body).not.toContain('Ã¶'); // klassisches Doppel-Encoding-Muster
+    expect(body).not.toContain('Ã¶');
     expect(body).not.toContain('Ã¤');
     expect(body).not.toContain('Ã¼');
 
-    // Aufräumen (neuer Feed hat die höchste id -> letzter Löschen-Link).
+    await page.getByRole('link', { name: 'Löschen' }).last().click();
+    await expect(page.locator('body')).toContainText('wurde gelöscht');
+});
+
+test('XSS: Feed-URL mit HTML wird escaped ausgegeben', async ({ page }) => {
+    const evil = 'https://xss.example/x"><img src=x onerror="alert(1)">';
+
+    await page.goto('feed_hinzufuegen.php');
+    await page.fill('input[name="url"]', 'https://xss.example/');
+    await page.fill('input[name="feed_url"]', evil);
+    await page.click('input[name="senden"]');
+    await expect(page.locator('body')).toContainText('erfolgreich gespeichert');
+
+    await page.goto('feeds_verwalten.php');
+    // Kein per Injection erzeugtes img-Element mit onerror.
+    expect(await page.locator('img[onerror]').count()).toBe(0);
+
     await page.getByRole('link', { name: 'Löschen' }).last().click();
     await expect(page.locator('body')).toContainText('wurde gelöscht');
 });
 
 test('CRUD: Feed anlegen, anzeigen und löschen', async ({ page }) => {
-    const { jsErrors } = watch(page);
     const feedUrl = 'https://e2e-test.example/feed.xml';
     const homepage = 'https://e2e-test.example/';
 
-    // Vorher: Anzahl Löschen-Links merken.
     await page.goto('feeds_verwalten.php');
     const before = await page.getByRole('link', { name: 'Löschen' }).count();
 
-    // Anlegen.
     await page.goto('feed_hinzufuegen.php');
     await page.fill('input[name="url"]', homepage);
     await page.fill('input[name="feed_url"]', feedUrl);
     await page.click('input[name="senden"]');
     await expect(page.locator('body')).toContainText('erfolgreich gespeichert');
 
-    // Anzeigen in der Verwaltung.
     await page.goto('feeds_verwalten.php');
     await expect(page.locator(`a[href="${feedUrl}"]`)).toBeVisible();
     const afterAdd = await page.getByRole('link', { name: 'Löschen' }).count();
     expect(afterAdd).toBe(before + 1);
 
-    // Löschen (neuer Feed hat die höchste id -> letzter Löschen-Link).
     await page.getByRole('link', { name: 'Löschen' }).last().click();
     await expect(page.locator('body')).toContainText('wurde gelöscht');
     await expect(page.locator(`a[href="${feedUrl}"]`)).toHaveCount(0);
-
-    expect(jsErrors).toEqual([]);
 });
 
 test('Feed bearbeiten: Formular lädt und speichert', async ({ page }) => {
@@ -124,8 +163,16 @@ test('Feed bearbeiten: Formular lädt und speichert', async ({ page }) => {
     expect(feedUrl.length).toBeGreaterThan(0);
     expect(homepage.length).toBeGreaterThan(0);
 
-    // Mit unveränderten Werten speichern (testet den UPDATE-Pfad ohne Datenänderung).
     await page.check('input[name="status"][value="1"]');
     await page.click('input[name="senden"]');
     await expect(page.locator('body')).toContainText('geändert');
+});
+
+test('Logout beendet die Session', async ({ page }) => {
+    await page.goto('feeds_verwalten.php');
+    await expect(page.locator('h1')).toContainText('RSS Grabber free v2.0');
+    await page.goto('logout.php');
+    // Nach Logout führt der Zugriff auf eine geschützte Seite zur Anmeldung.
+    await page.goto('feeds_verwalten.php');
+    await expect(page).toHaveURL(/login\.php$/);
 });

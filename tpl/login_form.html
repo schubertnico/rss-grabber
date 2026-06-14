@@ -1,0 +1,21 @@
+<form action="login.php" method="post">
+<input type="hidden" name="senden" value="login">
+<input type="hidden" name="csrf" value="{CSRF}">
+<h2>Anmeldung</h2>
+<p style="padding:3px;">Bitte melden Sie sich an, um den Verwaltungsbereich zu nutzen.</p>
+<div style="padding:3px;">{MELDUNG}</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;">Benutzername</div>
+	<div style="float: left; width: 150px;"><input type="text" name="username" value="{USERNAME}" style="width: 250px;"></div>
+	<div style="clear:left;"></div>
+</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;">Passwort</div>
+	<div style="float: left; width: 150px;"><input type="password" name="password" value="" style="width: 250px;"></div>
+	<div style="clear:left;"></div>
+</div>
+<div style="padding:3px;">
+	<div style="float: left; width: 150px;"><input type="submit" class="submit" name="login_btn" value="Anmelden"></div>
+	<div style="clear:left;"></div>
+</div>
+</form>

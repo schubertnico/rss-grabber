@@ -22,33 +22,44 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/auth.php');
+rssg_require_login();
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
 $lang_formular['meldung']='';
-if (!isset($_POST['senden'])) {
-    $_POST['senden']='';
-}
-if (!isset($_POST['url'])) {
-    $_POST['url']='';
-}
-if (!isset($_POST['feed_url'])) {
-    $_POST['feed_url']='';
-}
-if($_POST['senden'] == 'speichern' && $_POST['url'] != '' && $_POST['feed_url'] != ''){
-	$sql_select="SELECT id FROM `feeds` WHERE `feed_url` = '".mysqli_real_escape_string($link, (string) $_POST['feed_url'])."' LIMIT 1;";
-	$query = mysqli_query($link, $sql_select);
-	if($query instanceof mysqli_result && mysqli_num_rows($query)==0){
-		$sql_insert="INSERT INTO `feeds` (`feed_url`,`url`,`check`, `last_status`, `last_check` ) VALUES('".mysqli_real_escape_string($link, (string) $_POST['feed_url'])."', '".mysqli_real_escape_string($link, (string) $_POST['url'])."','1','k.a.',0);";
-		if(@mysqli_query($link, $sql_insert)!=false){
-			$lang_formular['meldung']= '<span style="color: green; ">Der Eintrag wurde erfolgreich gespeichert.</span>';
-		} else {
-			$lang_formular['meldung']= '<span style="color: red; ">Der Eintrag konnte nicht gespeichert werden!</span>';
+$postFeedUrl = is_string($_POST['feed_url'] ?? null) ? trim((string) $_POST['feed_url']) : '';
+$postUrl = is_string($_POST['url'] ?? null) ? trim((string) $_POST['url']) : '';
+if(($_POST['senden'] ?? '') == 'speichern'){
+	if (rssg_csrf_check($_POST['csrf'] ?? null) === false) {
+		$lang_formular['meldung']= '<span style="color: red; ">Ungültiges Sicherheits-Token.</span>';
+	} elseif ($postUrl !== '' && $postFeedUrl !== '') {
+		$exists = false;
+		$stmt = mysqli_prepare($link, "SELECT id FROM `feeds` WHERE `feed_url` = ? LIMIT 1");
+		if ($stmt !== false) {
+			mysqli_stmt_bind_param($stmt, 's', $postFeedUrl);
+			mysqli_stmt_execute($stmt);
+			mysqli_stmt_store_result($stmt);
+			$exists = mysqli_stmt_num_rows($stmt) > 0;
+			mysqli_stmt_close($stmt);
 		}
-	} else {
-		$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' .htmlspecialchars((string) $_POST['feed_url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'). ' vorhanden!</span>';
+		if ($exists === false) {
+			$ok = false;
+			$ins = mysqli_prepare($link, "INSERT INTO `feeds` (`feed_url`,`url`,`check`,`last_status`,`last_check`) VALUES (?, ?, 1, 'k.a.', 0)");
+			if ($ins !== false) {
+				mysqli_stmt_bind_param($ins, 'ss', $postFeedUrl, $postUrl);
+				$ok = mysqli_stmt_execute($ins);
+				mysqli_stmt_close($ins);
+			}
+			$lang_formular['meldung']= $ok
+				? '<span style="color: green; ">Der Eintrag wurde erfolgreich gespeichert.</span>'
+				: '<span style="color: red; ">Der Eintrag konnte nicht gespeichert werden!</span>';
+		} else {
+			$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' . rssg_e($postFeedUrl) . ' vorhanden!</span>';
+		}
 	}
 }
+$lang_formular['csrf'] = rssg_csrf_token();
 
 $template_formular = new PARSE;
 $template_formular -> TEMPLATE ($lang_formular,  __DIR__.'/tpl/feed_hinzufuegen_form.html');
