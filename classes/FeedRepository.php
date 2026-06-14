@@ -1,13 +1,13 @@
 <?php
 /**
  * -----------------------------------------
- * RSS Grabber free v2.0
+ * RSS Grabber free v3.0
  * -----------------------------------------
  * Datenzugriff fuer Feeds und Feed-Beitraege. Kapselt alle SQL-Operationen
  * (Prepared Statements fuer Eingaben), damit die Controller schlank und die
  * Logik testbar bleibt.
  *
- * @version free v2.0 (PHP 8.5)
+ * @version free v3.0 (PHP 8.5)
  */
 class FeedRepository
 {

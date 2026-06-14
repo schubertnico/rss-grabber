@@ -12,7 +12,7 @@ if (realpath($_SERVER["SCRIPT_FILENAME"] ?? '') === __FILE__) {
     header('Location: ../index.php');
     die();
 }
-$script_version = '2.00';
+$script_version = '3.0';
 $db_host = getenv('RSSG_DB_HOST') ?: 'db';
 $db_datenbank = getenv('RSSG_DB_NAME') ?: 'rss_grabber';
 $db_user = getenv('RSSG_DB_USER') ?: 'rss_grabber';

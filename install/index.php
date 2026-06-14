@@ -1,11 +1,11 @@
 <?php
 /**
  * -----------------------------------------
- * RSS Grabber free v2.0 - 11.12.2022
+ * RSS Grabber free v3.0 - 2026-06-14
  * -----------------------------------------
  * @copyright Copyright 2011, Schubertmedia/Nico Schubert
  * @link http://www.php-space.info/rss-grabber/ - Dokumentation und Informationen rund um das PHP Script.
- * @version free v2.0 (PHP8.1)
+ * @version free v3.0 (PHP 8.5)
  *
  * Das Script darf kostenlos verwendet werden. Es müssen aber alle Copyright Hinweise erhalten bleiben.
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
@@ -31,19 +31,19 @@ if (!isset($erfolgreich)) {
 if (!isset($fehler)) {
     $fehler='';
 }
-if(version_compare(PHP_VERSION, '8.1', '<')){
-	echo 'Es ist auf den Server die Php Version '.PHP_VERSION.' installiert. Um das Script verwenden zu k&ouml;nnen, ben&ouml;tigen Sie mind. die Version 8.1 oder h&ouml;her.';
+if(version_compare(PHP_VERSION, '8.5', '<')){
+	echo 'Es ist auf den Server die Php Version '.PHP_VERSION.' installiert. Um das Script verwenden zu k&ouml;nnen, ben&ouml;tigen Sie mind. die Version 8.5 oder h&ouml;her.';
 	exit;
 }
 if($_POST['senden']==1){
 	$config="<?php
 	/**
 	 * -----------------------------------------
-	 * RSS Grabber free v2.0 - 11.12.2022
+	 * RSS Grabber free v3.0 - 2026-06-14
 	 * -----------------------------------------
 	 * @copyright Copyright 2011, Schubertmedia/Nico Schubert
 	 * @link http://www.php-space.info/rss-grabber/ - Dokumentation und Informationen rund um das PHP Script.
-	 * @version free v2.0 (PHP8.1)
+	 * @version free v3.0 (PHP 8.5)
 	 * @abstract
 	 * Das Script darf kostenlos verwendet werden. Es müssen aber alle Copyright Hinweise erhalten bleiben.
      * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium Version. In der Premium Version sind keine
@@ -57,7 +57,7 @@ if($_POST['senden']==1){
 	/*
 	 * Script Version
 	 * */
-	\$script_version='2.00';
+	\$script_version='3.0';
 	/*
 	 * Bitte hinterlegen Sie hier die
 	 * Mysql Datenbankdaten.
@@ -199,18 +199,18 @@ $ausgabe = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http
 $ausgabe.= '<html xmlns="http://www.w3.org/1999/xhtml">';
 $ausgabe.= '<head>';
 $ausgabe.= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-$ausgabe.= '<title>Installationsroutine von RSS Grabber free v2.0</title>';
+$ausgabe.= '<title>Installationsroutine von RSS Grabber free v3.0</title>';
 $ausgabe.= '<link rel="stylesheet" href="../css/styles.css" type="text/css" media="screen" />';
 $ausgabe.= '</head>';
 $ausgabe.= '<body>';
-if ($erfolgreich!='' && version_compare(PHP_VERSION,'8.1')>=0) {
+if ($erfolgreich!='' && version_compare(PHP_VERSION,'8.5')>=0) {
     $ausgabe.= $erfolgreich;
-} elseif (version_compare(PHP_VERSION,'8.1')>=0) {
+} elseif (version_compare(PHP_VERSION,'8.5')>=0) {
     $ausgabe.= '<form method="POST" action="index.php">';
     $ausgabe.= '<input type="hidden" name="senden"  value="1">';
     $ausgabe.= '<table class="layout">';
     $ausgabe.= '	<tr>';
-    $ausgabe.= '		<td colspan="2"><b>Installationsroutine von RSS Grabber free v2.0</b></td>';
+    $ausgabe.= '		<td colspan="2"><b>Installationsroutine von RSS Grabber free v3.0</b></td>';
     $ausgabe.= '	</tr>';
     $ausgabe.= '	<tr>';
     $ausgabe.= '		<td colspan="2">Bitte f&uuml;llen Sie das Formular vollst&auml;ndig aus.</td>';
@@ -268,7 +268,7 @@ if ($erfolgreich!='' && version_compare(PHP_VERSION,'8.1')>=0) {
     $ausgabe.= '';
     $ausgabe.= '</form>';
 } else {
-    echo '<p>Die PHP-Version muss mind. 8.1 sein. Sie verwenden die PHP-Version: '.PHP_VERSION.'</p><p>Bitte aktualisieren Sie die PHP-Version auf Ihren Speicherplatz.</p>';
+    echo '<p>Die PHP-Version muss mind. 8.5 sein. Sie verwenden die PHP-Version: '.PHP_VERSION.'</p><p>Bitte aktualisieren Sie die PHP-Version auf Ihren Speicherplatz.</p>';
 }
 $ausgabe.= '</body>';
 $ausgabe.= '</html>';
