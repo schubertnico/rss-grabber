@@ -11,14 +11,16 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-	header ("Location:./install/");
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    if (headers_sent() === false) {
+        header('Location: ./install/');
+    }
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
-include(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/parase.php');
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];

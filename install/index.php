@@ -11,7 +11,11 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-$_POST['senden'] = isset($_POST['senden']) ? sprintf("%d", $_POST['senden']) : '0';
+// Seit PHP 8.1 wirft mysqli standardmäßig Exceptions. Im Installer ist ein
+// fehlgeschlagener Verbindungsversuch (falsche DB-Daten) jedoch der erwartete
+// Fehlerfall, der als Meldung angezeigt werden soll – daher Reporting abschalten.
+mysqli_report(MYSQLI_REPORT_OFF);
+$_POST['senden'] = (string)(int)($_POST['senden'] ?? 0);
 $_POST['db_host'] = isset($_POST['db_host']) ? trim($_POST['db_host']) : '';
 $_POST['db_datenbank'] = isset($_POST['db_datenbank']) ? trim($_POST['db_datenbank']) : '';
 $_POST['db_user'] = isset($_POST['db_user']) ? trim($_POST['db_user']) : '';
@@ -112,6 +116,7 @@ if($_POST['senden']==1){
         if (!$link) {
             $fehler .='- Es konnte keine Verbindung zum Datenbankserver hergestellt werden.<br>';
         } else {
+	        mysqli_set_charset($link, 'utf8mb4');
 	        $db_selected = @mysqli_select_db($link, $_POST['db_datenbank']);
 	        if (!$db_selected) {
 	            $fehler .='- Es konnte keine Verbindung zu der Datenbank hergestellt werden.<br>';
@@ -124,7 +129,7 @@ if($_POST['senden']==1){
                   `last_check` int(20) NOT NULL,
                   `last_status` varchar(15) NOT NULL,
                   PRIMARY KEY (`id`)
-                ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+                ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;";
 				                $result = @mysqli_query($link, $sql);
 				                if (!$result) {
 				                   $fehler .='- Es konnte die Datenbank Tabelle "feeds" nicht angelegt werden.<br>';
@@ -137,7 +142,7 @@ if($_POST['senden']==1){
                   `title` varchar(255) NOT NULL,
                   `description` text NOT NULL,
                   PRIMARY KEY (`id`)
-                ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+                ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;";
 				$result = @mysqli_query($link, $sql);
 				if (!$result) {
 				   $fehler .='- Es konnte die Datenbank Tabelle "feeds_post" nicht angelegt werden.<br>';

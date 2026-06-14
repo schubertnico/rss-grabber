@@ -1,0 +1,12 @@
+{
+    "name": "rss-grabber-e2e",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Playwright E2E-Tests für RSS Grabber",
+    "scripts": {
+        "e2e": "playwright test"
+    },
+    "devDependencies": {
+        "@playwright/test": "1.50.0"
+    }
+}

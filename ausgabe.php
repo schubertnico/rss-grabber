@@ -14,20 +14,22 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-	header ("Location:./install/");
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    if (headers_sent() === false) {
+        header('Location: ./install/');
+    }
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
-include(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/parase.php');
 
 header("content-type: text/html; charset=UTF-8");
 
-if (!isset($_POST['ajax'])) {
-    $_POST['ajax']=0;
-}
+$ajax = (int)($_POST['ajax'] ?? 0);
+// Divisor/Limit absichern: verhindert DivisionByZeroError und ungültige LIMITs.
+$anz_anzeige = max(1, (int)$anz_anzeige);
 $feeds=[];
 $ausgabe='';
 $lang_navigation_top=[];
@@ -48,8 +50,8 @@ if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
     }
 }
 #var_dump(($_POST['ajax']!=''));
-if($_POST['ajax']!==0){
-	$start=($anz_anzeige*((int)$_POST['ajax']+1));
+if($ajax!==0){
+	$start=($anz_anzeige*($ajax+1));
 	$sql_select='SELECT * FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.(int)$start.', '.$anz_anzeige;
 
   $query = mysqli_query($link, $sql_select);
@@ -60,7 +62,7 @@ if($_POST['ajax']!==0){
 	    	$datenFeedsId = (string)$daten['feeds_id'];
 	    	$datenPubDate = (string)$daten['pubDate'];
 	    	$datenDescription = (string)$daten['description'];
-	    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.$feeds[$datenFeedsId]['url'].'" target="_blank">'.$feeds[$datenFeedsId]['name'].'</a> am '.date_mysql2german($datenPubDate).'</div>';
+	    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.($feeds[$datenFeedsId]['url'] ?? '#').'" target="_blank">'.($feeds[$datenFeedsId]['name'] ?? 'unbekannt').'</a> am '.date_mysql2german($datenPubDate).'</div>';
 	    	$ausgabe .='<div class="beitrag_description">'.limitch(strip_tags($datenDescription),$max_laege_description).'</div><div class="beitrag_link"><a href="'.$datenLink.'" target="_blank" class="beitrag_link">'.limitch($datenLink,95).'</a></div><br><br>';
 	    }
 	}
@@ -71,7 +73,7 @@ if($_POST['ajax']!==0){
 
 $sql_select='SELECT id FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC';
 $query = mysqli_query($link, $sql_select);
-$anz= $query instanceof mysqli_result ? (int)round((int)mysqli_num_rows($query)/(int)$anz_anzeige) : 0;
+$anz= $query instanceof mysqli_result ? (int)round((int)mysqli_num_rows($query)/$anz_anzeige) : 0;
 
 $sql_select='SELECT * FROM `feeds_post` where `feeds_id` in(\''.implode("','",array_values($sql_zusatz)).'\') ORDER BY `feeds_post`.`pubDate` DESC LIMIT '.$anz_anzeige;
 $query = mysqli_query($link, $sql_select);
@@ -82,7 +84,7 @@ if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
     	$datenFeedsId = (string)$daten['feeds_id'];
     	$datenPubDate = (string)$daten['pubDate'];
     	$datenDescription = (string)$daten['description'];
-    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.$feeds[$datenFeedsId]['url'].'" target="_blank">'.$feeds[$datenFeedsId]['name'].'</a> am '.date_mysql2german($datenPubDate).'</div>';
+    	$ausgabe .='<a href="'.$datenLink.'" target="_blank" class="beitrag_title" title="'.$datenTitle.'">'.$datenTitle.'</a><br><div class="beitrag_pubDate">Geschrieben von <a href="'.($feeds[$datenFeedsId]['url'] ?? '#').'" target="_blank">'.($feeds[$datenFeedsId]['name'] ?? 'unbekannt').'</a> am '.date_mysql2german($datenPubDate).'</div>';
     	$ausgabe .='<div class="beitrag_description">'.limitch(strip_tags($datenDescription),$max_laege_description).'</div><div class="beitrag_link"><a href="'.$datenLink.'" target="_blank" class="beitrag_link">'.limitch($datenLink,95).'</a></div><br><br>';
     }
 } else {

@@ -12,14 +12,16 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-	header ("Location:./install/");
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    if (headers_sent() === false) {
+        header('Location: ./install/');
+    }
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
-include(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/parase.php');
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
@@ -39,9 +41,9 @@ if (!isset($_POST['id'])) {
 if (!isset($_POST['status'])) {
     $_POST['status']='';
 }
-$_GET['id'] = isset($_GET['id']) ? sprintf("%d",$_GET['id']) : '0';
+$_GET['id'] = (string)(int)($_GET['id'] ?? 0);
 if($_POST['senden'] == 'speichern' && $_POST['url'] != '' && $_POST['feed_url'] != '' && $_POST['id'] != '' && $_POST['status'] != ''){
-	$sql_update="UPDATE `feeds` SET `check` = '".mysqli_escape_string($link, (string) $_POST['status'])."', `feed_url` = '".mysqli_escape_string($link, (string) $_POST['feed_url'])."', `url`='".mysqli_escape_string($link, (string) $_POST['url'])."' WHERE `id` = '".mysqli_escape_string($link, (string) $_POST['id'])."' LIMIT 1;";
+	$sql_update="UPDATE `feeds` SET `check` = '".mysqli_real_escape_string($link, (string) $_POST['status'])."', `feed_url` = '".mysqli_real_escape_string($link, (string) $_POST['feed_url'])."', `url`='".mysqli_real_escape_string($link, (string) $_POST['url'])."' WHERE `id` = '".mysqli_real_escape_string($link, (string) $_POST['id'])."' LIMIT 1;";
 	if(@mysqli_query($link, $sql_update)){
 		$lang_formular['meldung']= '<span style="color: green; ">Der Eintrag wurde geändert.</span>';
 	} else {
@@ -51,7 +53,7 @@ if($_POST['senden'] == 'speichern' && $_POST['url'] != '' && $_POST['feed_url'] 
 
 }
 if($_GET['id']!='0'){
-	$sql_select="SELECT * FROM `feeds` WHERE `id` = '".mysqli_escape_string($link, (string) $_GET['id'])."' LIMIT 1;";
+	$sql_select="SELECT * FROM `feeds` WHERE `id` = '".mysqli_real_escape_string($link, (string) $_GET['id'])."' LIMIT 1;";
 	$query = @mysqli_query($link, $sql_select);
     if($query instanceof mysqli_result && mysqli_num_rows($query)!=0){
 	    $daten = mysqli_fetch_assoc($query);
