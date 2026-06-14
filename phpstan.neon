@@ -1,0 +1,31 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+
+parameters:
+    level: 8
+    # Defensive Laufzeit-Checks (z. B. version_compare, isset-Guards) sollen nicht
+    # als "immer wahr/falsch" gemeldet werden – sie greifen in anderen Umgebungen.
+    treatPhpDocTypesAsCertain: false
+    bootstrapFiles:
+        - tests/bootstrap.php
+    paths:
+        - ausgabe.php
+        - db.php
+        - feed_bearbeiten.php
+        - feed_hinzufuegen.php
+        - feeds_synchronisieren.php
+        - feeds_verwalten.php
+        - graber_ajax.php
+        - index.php
+        - login.php
+        - logout.php
+        - premium-version.php
+        - inc
+        - classes
+        - install
+        - tests
+    excludePaths:
+        - vendor
+        - node_modules
+        - java
+        - tpl

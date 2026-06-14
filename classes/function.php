@@ -52,7 +52,7 @@ if (function_exists("rssg_render_feed_post") === false) {
      * Rendert einen Feed-Beitrag als HTML-Fragment (vollständig escaped).
      *
      * @param array<string, mixed> $row   Zeile aus der Tabelle feeds_post
-     * @param array<string, array{url?: string, name?: string}> $feeds Feed-Metadaten je feeds_id
+     * @param array<array-key, array{url?: string, name?: string}> $feeds Feed-Metadaten je feeds_id
      */
     function rssg_render_feed_post(array $row, array $feeds, int $maxDesc): string
     {

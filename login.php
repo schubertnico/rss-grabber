@@ -16,6 +16,7 @@ require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
 require_once(__DIR__ . '/inc/auth.php');
+/** @var mysqli $link */
 
 // Bereits angemeldet -> direkt in die Verwaltung.
 if (rssg_is_logged_in()) {
