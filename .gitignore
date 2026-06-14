@@ -10,3 +10,6 @@
 composer.phar
 .DS_Store
 /Installationsanleitung_2.00.pdf
+# Release-Build-Artefakte
+/build/*.zip
+/build/_release_tmp/
