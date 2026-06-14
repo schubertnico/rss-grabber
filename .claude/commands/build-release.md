@@ -29,16 +29,17 @@ erzeuge den zugehoerigen Git-Tag.
    `install/`, `tpl/`, `css/`, `img/`, `java/`, `.htaccess`, `INSTALLATION.md`,
    die Installationsanleitung-PDF und `LICENSE`.
 
-3. Pruefe, dass der Git-Tag gesetzt ist (`git tag --list v<version>`).
+3. Pruefe, dass der Git-Tag gesetzt ist (SemVer, z. B. `git tag --list v3.0.0`).
 
 4. Berichte: Pfad des ZIPs, Versionsnummer, Dateianzahl, Groesse und den
    erzeugten/gepushten Git-Tag. Liefere das ZIP per SendUserFile aus.
 
 ## Hinweise
 
-- Der Tag-Name entspricht der Version aus `inc/config.php` (z. B. `v3.0`).
-  Soll eine andere Tag-/Versionsnummer verwendet werden, beim Aufruf ein
-  Argument uebergeben: `/build-release 3.1`.
+- Der Git-Tag folgt SemVer `vX.Y.Z` (aus der Version in `inc/config.php`
+  abgeleitet, z. B. `3.0` -> Tag `v3.0.0`). Der ZIP-Name nutzt die kuerzere
+  Anzeige-Version (z. B. `rss-grabber-v3.0.zip`). Soll eine andere Version
+  verwendet werden, beim Aufruf ein Argument uebergeben: `/build-release 3.1`.
 - Das ZIP enthaelt eine fertige Verzeichnisstruktur unter `rss-grabber/`. Der
   Endnutzer laedt den Inhalt auf seinen Webspace und ruft `install/` auf
   (siehe `INSTALLATION.md`). Das Build-Artefakt selbst wird nicht eingecheckt
