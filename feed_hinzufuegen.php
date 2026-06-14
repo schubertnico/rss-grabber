@@ -12,14 +12,16 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-	header ("Location:./install/");
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    if (headers_sent() === false) {
+        header('Location: ./install/');
+    }
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
-include(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/parase.php');
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
@@ -34,17 +36,17 @@ if (!isset($_POST['feed_url'])) {
     $_POST['feed_url']='';
 }
 if($_POST['senden'] == 'speichern' && $_POST['url'] != '' && $_POST['feed_url'] != ''){
-	$sql_select="SELECT id FROM `feeds` WHERE `feed_url` = '".mysqli_escape_string($link, (string) $_POST['feed_url'])."' LIMIT 1;";
+	$sql_select="SELECT id FROM `feeds` WHERE `feed_url` = '".mysqli_real_escape_string($link, (string) $_POST['feed_url'])."' LIMIT 1;";
 	$query = mysqli_query($link, $sql_select);
 	if($query instanceof mysqli_result && mysqli_num_rows($query)==0){
-		$sql_insert="INSERT INTO `feeds` (`feed_url`,`url`,`check`, `last_status`, `last_check` ) VALUES('".mysqli_escape_string($link, (string) $_POST['feed_url'])."', '".mysqli_escape_string($link, (string) $_POST['url'])."','1','k.a.',0);";
+		$sql_insert="INSERT INTO `feeds` (`feed_url`,`url`,`check`, `last_status`, `last_check` ) VALUES('".mysqli_real_escape_string($link, (string) $_POST['feed_url'])."', '".mysqli_real_escape_string($link, (string) $_POST['url'])."','1','k.a.',0);";
 		if(@mysqli_query($link, $sql_insert)!=false){
 			$lang_formular['meldung']= '<span style="color: green; ">Der Eintrag wurde erfolgreich gespeichert.</span>';
 		} else {
 			$lang_formular['meldung']= '<span style="color: red; ">Der Eintrag konnte nicht gespeichert werden!</span>';
 		}
 	} else {
-		$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' .htmlspecialchars((string) $_POST['feed_url']). ' vorhanden!</span>';
+		$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' .htmlspecialchars((string) $_POST['feed_url'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'). ' vorhanden!</span>';
 	}
 }
 

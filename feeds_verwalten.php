@@ -12,24 +12,24 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-	header ("Location:./install/");
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    if (headers_sent() === false) {
+        header('Location: ./install/');
+    }
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
-include(__DIR__ . '/classes/parase.php');
-$_GET['id'] = isset($_GET['id']) ? sprintf("%d",$_GET['id']) : '0';
-if (!isset($_GET['delete'])) {
-    $_GET['delete']='';
-}
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/parase.php');
+$deleteId = (int)($_GET['id'] ?? 0);
+$delete = $_GET['delete'] ?? '';
 $medlung='';
 $feeds=[];
 $lang_navigation_top=[];
 $ausgabe='';
-if($_GET['delete'] == 1){
-	$sql_delete="DELETE FROM `feeds` WHERE `id` = '".mysqli_escape_string($link, $_GET['id'])."' LIMIT 1;";
+if($delete == 1){
+	$sql_delete="DELETE FROM `feeds` WHERE `id` = '".mysqli_real_escape_string($link, (string)$deleteId)."' LIMIT 1;";
 	if(@mysqli_query($link, $sql_delete)!=false){
 		$medlung='<span class="erfolgreich">Der Eintrag wurde gelöscht.</span>';
 	} else {
@@ -85,7 +85,7 @@ if($anz!=0){
 		$ausgabe .='	<td class="line_d">'.ucfirst((string)$daten['last_status']).'</td>';
 		$ausgabe .='</tr>';
 		$ausgabe .='<tr>';
-			$ausgabe .='	<td class="line" colspan="2"><img src="img/pfeil.jpg"><a href="'.htmlspecialchars($_SERVER['PHP_SELF']).'?delete=1&id='.$daten['id'].'">Löschen</a>, <a href="feed_bearbeiten.php?id='.$daten['id'].'">Bearbeiten</a></td>';
+			$ausgabe .='	<td class="line" colspan="2"><img src="img/pfeil.jpg"><a href="'.htmlspecialchars((string)($_SERVER['PHP_SELF'] ?? '')).'?delete=1&id='.$daten['id'].'">Löschen</a>, <a href="feed_bearbeiten.php?id='.$daten['id'].'">Bearbeiten</a></td>';
 			$ausgabe .='</tr>';
 
     }

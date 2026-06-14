@@ -13,13 +13,15 @@
  * Für einen einmaligen Betrag von 9,95 EUR erhalten Sie die Premium-Version. In der Premium-Version sind keine
  * sichtbaren Copyright Hinweise mehr enthalten. Daduch unterstutzen Sie die Weiterentwiklung und würdigen diese Arbeit.
  */
-if (@file_exists('./inc/config.php')) {
-    include_once(__DIR__ . "/inc/config.php");
-} else {
-  exit;
+if (file_exists(__DIR__ . '/inc/config.php') === false) {
+    exit;
 }
-include(__DIR__ . '/db.php');
-include(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/inc/config.php');
+require_once(__DIR__ . '/db.php');
+require_once(__DIR__ . '/classes/function.php');
+if (headers_sent() === false) {
+    header('Content-Type: text/html; charset=UTF-8');
+}
 if(function_exists('simplexml_load_file')===false){
   echo 'Es steht in PHP die Funktion simplexml_load_file() nicht zur Verfügung.';
   exit;
@@ -33,7 +35,7 @@ $sql_select = "SELECT id FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . 
 $query = mysqli_query($link, $sql_select);
 $anz_offen = ($query instanceof mysqli_result) ? (int)mysqli_num_rows($query) : 0;
 
-$sql_select = "SELECT id, feed_url FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . time() . "' LIMIT " . $anzahl_grabber_pro_lauf . ";";
+$sql_select = "SELECT id, feed_url FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . time() . "' LIMIT " . max(1, (int)$anzahl_grabber_pro_lauf) . ";";
 $query = mysqli_query($link, $sql_select) or die(mysqli_errno($link));
 if (!$query instanceof mysqli_result) {
     die('Query failed');
@@ -41,18 +43,19 @@ if (!$query instanceof mysqli_result) {
 
 if (mysqli_num_rows($query) != 0) {
   while ($daten = mysqli_fetch_assoc($query)) {
-    $xml = simplexml_load_file((string)$daten["feed_url"], "SimpleXMLElement", LIBXML_NOCDATA);
+    // libxml-Parsefehler intern halten und Stream-Warnungen unterdrücken,
+    // damit nicht erreichbare/ungültige Feeds keine PHP-Warnungen in die
+    // AJAX-Antwort schreiben.
+    libxml_use_internal_errors(true);
+    $xml = @simplexml_load_file((string)$daten["feed_url"], "SimpleXMLElement", LIBXML_NOCDATA);
+    libxml_clear_errors();
 
-    if ($xml !== false) {
-      if (count($xml->channel->item) > 0 && isset($iso_to_utf)) {
-        foreach ($xml->channel->item as $v) {
-          addItem($iso_to_utf, $v, (int)$daten["id"], $link);
-        }
+    if ($xml !== false && isset($iso_to_utf)) {
+      foreach ($xml->channel->item as $v) {
+        addItem((string)$iso_to_utf, $v, (int)$daten["id"], $link);
       }
-      if (count($xml->entry) > 0 && isset($iso_to_utf)) {
-        foreach ($xml->entry as $v) {
-          addItem($iso_to_utf, $v, (int)$daten["id"], $link,2);
-        }
+      foreach ($xml->entry as $v) {
+        addItem((string)$iso_to_utf, $v, (int)$daten["id"], $link, 2);
       }
     }
     $status = (($xml === false) ? 'fehler' : 'erfolgreich');
