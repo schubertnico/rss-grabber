@@ -38,6 +38,26 @@ final class FunctionsTest extends TestCase
         ];
     }
 
+    #[DataProvider('feedNameProvider')]
+    public function testFeedName(string $url, string $expected): void
+    {
+        self::assertSame($expected, rssg_feed_name($url));
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function feedNameProvider(): array
+    {
+        return [
+            'https + www'        => ['https://www.example.org/blog', 'example.org'],
+            'http ohne www'      => ['http://example.com/feed.xml', 'example.com'],
+            'mit Pfad'           => ['https://php-space.info/php/space/news.php', 'php-space.info'],
+            'ohne Schema'        => ['example.net/x', 'example.net'],
+            'reiner Text'        => ['plainstring', 'plainstring'],
+        ];
+    }
+
     public function testRenderFeedPostEscaptHtml(): void
     {
         $row = [

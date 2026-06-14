@@ -19,6 +19,7 @@ if (file_exists(__DIR__ . '/inc/config.php') === false) {
 require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
+require_once(__DIR__ . '/classes/FeedRepository.php');
 require_once(__DIR__ . '/inc/auth.php');
 rssg_require_login();
 if (headers_sent() === false) {
@@ -35,24 +36,16 @@ if(function_exists('simplexml_load_file')===false){
   echo 'Es steht in PHP die Funktion simplexml_load_file() nicht zur Verfügung.';
   exit;
 }
+$repo = new FeedRepository($link);
+$now = time();
 $ausgabe = '';
-$sql_select = "SELECT id FROM `feeds` WHERE `check` = '1';";
-$query = mysqli_query($link, $sql_select);
-$anz_gesamt = ($query instanceof mysqli_result) ? (int)mysqli_num_rows($query) : 0;
+$anz_gesamt = $repo->countActive();
+$anz_offen = $repo->countDue($now);
+$dueFeeds = $repo->dueFeeds($now, max(1, (int)$anzahl_grabber_pro_lauf));
 
-$sql_select = "SELECT id FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . time() . "';";
-$query = mysqli_query($link, $sql_select);
-$anz_offen = ($query instanceof mysqli_result) ? (int)mysqli_num_rows($query) : 0;
-
-$sql_select = "SELECT id, feed_url FROM `feeds` WHERE `check` = '1' AND `last_check`<'" . time() . "' LIMIT " . max(1, (int)$anzahl_grabber_pro_lauf) . ";";
-$query = mysqli_query($link, $sql_select);
-if (!$query instanceof mysqli_result) {
-    echo 'Die Synchronisierung konnte derzeit nicht gestartet werden.';
-    exit;
-}
-
-if (mysqli_num_rows($query) != 0) {
-  while ($daten = mysqli_fetch_assoc($query)) {
+if ($dueFeeds !== []) {
+  foreach ($dueFeeds as $feed) {
+    $feedId = $feed['id'];
     // Feed mit Timeout laden, damit ein hängender Feed den Lauf nicht blockiert.
     // libxml-Parsefehler intern halten und Stream-Warnungen unterdrücken, damit
     // nicht erreichbare/ungültige Feeds keine PHP-Warnungen in die AJAX-Antwort
@@ -62,27 +55,20 @@ if (mysqli_num_rows($query) != 0) {
       'http'  => ['timeout' => 10, 'user_agent' => 'RSS-Grabber/2.0'],
       'https' => ['timeout' => 10],
     ]);
-    $raw = @file_get_contents((string)$daten["feed_url"], false, $ctx);
+    $raw = @file_get_contents($feed['feed_url'], false, $ctx);
     $xml = ($raw !== false) ? @simplexml_load_string($raw, "SimpleXMLElement", LIBXML_NOCDATA) : false;
     libxml_clear_errors();
 
     if ($xml !== false && isset($iso_to_utf)) {
       foreach ($xml->channel->item as $v) {
-        addItem((string)$iso_to_utf, $v, (int)$daten["id"], $link);
+        addItem((string)$iso_to_utf, $v, $feedId, $link);
       }
       foreach ($xml->entry as $v) {
-        addItem((string)$iso_to_utf, $v, (int)$daten["id"], $link, 2);
+        addItem((string)$iso_to_utf, $v, $feedId, $link, 2);
       }
     }
-    $status = (($xml === false) ? 'fehler' : 'erfolgreich');
-    $lastCheck = time() + 3600;
-    $feedId = (int)$daten["id"];
-    $stmtUpd = mysqli_prepare($link, "UPDATE `feeds` SET `last_check` = ?, `last_status` = ? WHERE `id` = ? LIMIT 1");
-    if ($stmtUpd !== false) {
-      mysqli_stmt_bind_param($stmtUpd, "isi", $lastCheck, $status, $feedId);
-      mysqli_stmt_execute($stmtUpd);
-      mysqli_stmt_close($stmtUpd);
-    }
+    $status = ($xml === false) ? 'fehler' : 'erfolgreich';
+    $repo->markChecked($feedId, $now + 3600, $status);
   }
   if (($anz_gesamt - $anz_offen) == 0) {
       $ausgabe .= '<img src="img/ajax-loader.gif" alt=""> Die Synchronisierung beginnt, bitte warten...';

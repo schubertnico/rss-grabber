@@ -168,6 +168,16 @@ test('Feed bearbeiten: Formular lädt und speichert', async ({ page }) => {
     await expect(page.locator('body')).toContainText('geändert');
 });
 
+test('Endless-Scroll: AJAX-Nachladen liefert nur ein Fragment, nicht das Layout', async ({ page }) => {
+    // Regression: bei ajax=0 (erster Nachlade-Schritt) wurde faelschlich die
+    // komplette Seite (Layout) zurueckgegeben statt nur der Beitraege.
+    const res = await page.context().request.post('ausgabe.php', { form: { ajax: '0' } });
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).not.toContain('</html>');
+    expect(body).not.toContain('<h1>RSS Grabber free v2.0</h1>');
+});
+
 test('Synchronisierung: Klick aktualisiert den Status (Vanilla-JS)', async ({ page }) => {
     const { jsErrors } = watch(page);
     await page.goto('feeds_synchronisieren.php');

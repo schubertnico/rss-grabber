@@ -22,8 +22,10 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/classes/FeedRepository.php');
 require_once(__DIR__ . '/inc/auth.php');
 rssg_require_login();
+$repo = new FeedRepository($link);
 $deleteId = (int)($_GET['id'] ?? 0);
 $delete = (string)($_GET['delete'] ?? '');
 $csrfToken = rssg_csrf_token();
@@ -35,26 +37,15 @@ if($delete === '1' && $deleteId > 0){
 	if (rssg_csrf_check($_GET['csrf'] ?? null) === false) {
 		$medlung='<span class="fehler">Ungültiges Sicherheits-Token.</span>';
 	} else {
-		$ok = false;
-		$stmt = mysqli_prepare($link, "DELETE FROM `feeds` WHERE `id` = ? LIMIT 1");
-		if ($stmt !== false) {
-			mysqli_stmt_bind_param($stmt, 'i', $deleteId);
-			$ok = mysqli_stmt_execute($stmt);
-			mysqli_stmt_close($stmt);
-		}
+		$ok = $repo->delete($deleteId);
 		$medlung = $ok
 			? '<span class="erfolgreich">Der Eintrag wurde gelöscht.</span>'
 			: '<span class="fehler">Der Eintrag konnte nicht gelöscht.</span>';
 	}
 }
 
-$sql_select="SELECT * FROM `feeds`;";
-$query = mysqli_query($link, $sql_select) OR die(mysqli_errno($link));
-if (!$query instanceof mysqli_result) {
-    die('Query failed');
-}
-$anz=mysqli_num_rows($query);
-if($anz!=0){
+$alleFeeds = $repo->all();
+if($alleFeeds !== []){
 	$ausgabe .='<table>';
 	$ausgabe .='<caption>Feeds verwalten</caption>';
 	$ausgabe .='<thead>';
@@ -72,9 +63,7 @@ if($anz!=0){
 	$ausgabe .='	</tr>';
 	$ausgabe .='</tfoot>';
 	$ausgabe .='<tbody>';
-	$i=0;
-    while($daten = mysqli_fetch_assoc($query)){
-    	$i++;
+    foreach($alleFeeds as $daten){
 		$ausgabe .='<tr>';
 		$ausgabe .='	<td class="line_b">Homepage:</td>';
 		$ausgabe .='	<td class="line_d"><a href="'.rssg_safe_url((string)$daten['url']).'" target="_blank">'.rssg_e((string)$daten['url']).'</a></td>';

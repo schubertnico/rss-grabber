@@ -22,8 +22,10 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/classes/FeedRepository.php');
 require_once(__DIR__ . '/inc/auth.php');
 rssg_require_login();
+$repo = new FeedRepository($link);
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
@@ -34,28 +36,12 @@ if(($_POST['senden'] ?? '') == 'speichern'){
 	if (rssg_csrf_check($_POST['csrf'] ?? null) === false) {
 		$lang_formular['meldung']= '<span style="color: red; ">Ungültiges Sicherheits-Token.</span>';
 	} elseif ($postUrl !== '' && $postFeedUrl !== '') {
-		$exists = false;
-		$stmt = mysqli_prepare($link, "SELECT id FROM `feeds` WHERE `feed_url` = ? LIMIT 1");
-		if ($stmt !== false) {
-			mysqli_stmt_bind_param($stmt, 's', $postFeedUrl);
-			mysqli_stmt_execute($stmt);
-			mysqli_stmt_store_result($stmt);
-			$exists = mysqli_stmt_num_rows($stmt) > 0;
-			mysqli_stmt_close($stmt);
-		}
-		if ($exists === false) {
-			$ok = false;
-			$ins = mysqli_prepare($link, "INSERT INTO `feeds` (`feed_url`,`url`,`check`,`last_status`,`last_check`) VALUES (?, ?, 1, 'k.a.', 0)");
-			if ($ins !== false) {
-				mysqli_stmt_bind_param($ins, 'ss', $postFeedUrl, $postUrl);
-				$ok = mysqli_stmt_execute($ins);
-				mysqli_stmt_close($ins);
-			}
-			$lang_formular['meldung']= $ok
+		if ($repo->existsByFeedUrl($postFeedUrl)) {
+			$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' . rssg_e($postFeedUrl) . ' vorhanden!</span>';
+		} else {
+			$lang_formular['meldung']= $repo->add($postFeedUrl, $postUrl)
 				? '<span style="color: green; ">Der Eintrag wurde erfolgreich gespeichert.</span>'
 				: '<span style="color: red; ">Der Eintrag konnte nicht gespeichert werden!</span>';
-		} else {
-			$lang_formular['meldung']= '<span style="color: red; ">Es ist schon ein Feed mit der Url: ' . rssg_e($postFeedUrl) . ' vorhanden!</span>';
 		}
 	}
 }

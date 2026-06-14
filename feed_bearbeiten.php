@@ -22,8 +22,10 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/classes/FeedRepository.php');
 require_once(__DIR__ . '/inc/auth.php');
 rssg_require_login();
+$repo = new FeedRepository($link);
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
@@ -39,14 +41,7 @@ if(($_POST['senden'] ?? '') == 'speichern'){
 	if (rssg_csrf_check($_POST['csrf'] ?? null) === false) {
 		$lang_formular['meldung']= '<span style="color: red; ">Ungültiges Sicherheits-Token.</span>';
 	} elseif ($postUrl !== '' && $postFeedUrl !== '' && $postId > 0 && in_array($postStatus, [1, 2], true)) {
-		$ok = false;
-		$stmt = mysqli_prepare($link, "UPDATE `feeds` SET `check` = ?, `feed_url` = ?, `url` = ? WHERE `id` = ? LIMIT 1");
-		if ($stmt !== false) {
-			mysqli_stmt_bind_param($stmt, 'issi', $postStatus, $postFeedUrl, $postUrl, $postId);
-			$ok = mysqli_stmt_execute($stmt);
-			mysqli_stmt_close($stmt);
-		}
-		$lang_formular['meldung']= $ok
+		$lang_formular['meldung']= $repo->update($postId, $postStatus, $postFeedUrl, $postUrl)
 			? '<span style="color: green; ">Der Eintrag wurde geändert.</span>'
 			: '<span style="color: red; ">Der Eintrag konnte nicht geändert werden!</span>';
 		$id = $postId;
@@ -55,17 +50,7 @@ if(($_POST['senden'] ?? '') == 'speichern'){
 
 $lang['inhalt']='keine Daten gefunden';
 if($id > 0){
-	$daten = null;
-	$stmt = mysqli_prepare($link, "SELECT id, url, feed_url, `check` FROM `feeds` WHERE `id` = ? LIMIT 1");
-	if ($stmt !== false) {
-		mysqli_stmt_bind_param($stmt, 'i', $id);
-		mysqli_stmt_execute($stmt);
-		$res = mysqli_stmt_get_result($stmt);
-		if ($res instanceof mysqli_result) {
-			$daten = mysqli_fetch_assoc($res);
-		}
-		mysqli_stmt_close($stmt);
-	}
+	$daten = $repo->find($id);
 	if (is_array($daten)) {
 		$lang_formular['homepage']=rssg_e((string) $daten["url"]);
 		$lang_formular['id']=(string)(int) $daten["id"];

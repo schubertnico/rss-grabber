@@ -15,6 +15,7 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+require_once(__DIR__ . '/classes/AdminRepository.php');
 require_once(__DIR__ . '/inc/auth.php');
 /** @var mysqli $link */
 
@@ -39,17 +40,8 @@ if (($_POST['senden'] ?? '') === 'login') {
         $username = is_string($_POST['username'] ?? null) ? trim((string)$_POST['username']) : '';
         $password = is_string($_POST['password'] ?? null) ? (string)$_POST['password'] : '';
 
-        $hash = '';
-        $stmt = mysqli_prepare($link, 'SELECT password_hash FROM `admin` WHERE `username` = ? LIMIT 1');
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, 's', $username);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $hash);
-            mysqli_stmt_fetch($stmt);
-            mysqli_stmt_close($stmt);
-        }
-
-        if (is_string($hash) && $hash !== '' && password_verify($password, $hash)) {
+        $admin = new AdminRepository($link);
+        if ($admin->verifyLogin($username, $password)) {
             session_regenerate_id(true);
             $_SESSION['rssg_admin'] = $username;
             if (headers_sent() === false) {
