@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>RSS Grabber v3.0 – Installationsanleitung</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+         font-size: 10.5pt; color: #000; line-height: 1.45; margin: 0; }
+  .header { display: table; width: 100%; }
+  .header .left, .header .right { display: table-cell; vertical-align: top; }
+  .header .left { width: 58%; padding-right: 8px; }
+  .header .right { width: 42%; font-size: 9pt; line-height: 1.35; }
+  .title { font-size: 15pt; font-weight: bold; }
+  .subtitle { font-size: 11pt; margin-top: 2px; }
+  hr { border: none; border-top: 1px solid #000; margin: 10px 0 14px; }
+  .meta { margin: 0 0 4px; }
+  .section-title { font-size: 12.5pt; font-weight: bold; margin: 18px 0 6px;
+                   page-break-after: avoid; }
+  p { margin: 6px 0; text-align: justify; }
+  ul, ol { margin: 6px 0 6px 22px; padding: 0; }
+  li { margin: 4px 0; }
+  a { color: #000; }
+  pre { font-family: "Courier New", monospace; font-size: 9pt; background: #f4f4f4;
+        border: 1px solid #ddd; padding: 8px 10px; white-space: pre-wrap;
+        page-break-inside: avoid; }
+  code { font-family: "Courier New", monospace; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="left">
+    <div class="title">RSS Grabber v3.0</div>
+    <div class="subtitle">Installationsanleitung sowie allgemeine Tipps</div>
+  </div>
+  <div class="right">
+    SchubertMedia<br>
+    Inhaber: Nico Schubert<br>
+    Stauffenbergallee 57<br>
+    D&nbsp;-&nbsp;99085 Erfurt<br>
+    <br>
+    Telefon: +49 (0) 3612 3002247<br>
+    (Mo.&ndash;Fr. 9&ndash;12 und 13&ndash;18 Uhr)<br>
+    Telefax: +49 (0) 3612 3004636<br>
+    Web: https://www.schubertmedia.de<br>
+    E-Mail: info@schubertmedia.de
+  </div>
+</div>
+
+<hr>
+
+<div class="meta">Datum: 14.06.2026</div>
+<div class="meta">Version der RSS Grabber: v3.0</div>
+<div class="meta">Autor des Scripts: Nico Schubert / SchubertMedia</div>
+<div class="meta">URL: https://www.php-space.info/rss-grabber/</div>
+
+<div class="section-title">Einsatzgebiete des RSS Grabber</div>
+<p>Die Einsatzgebiete sind bei dem RSS Grabber sehr vielseitig. Man kann dieses Tool dazu
+nutzen um sich auf dem Laufenden in verschiedenen Themengebiete zu halten. Die
+Verwaltung und Verwendung von RSS Grabber ist sehr einfach. F&uuml;r die Installation von
+RSS Grabber ben&ouml;tigen sie kein gro&szlig;es Fachwissen und k&ouml;nnen dies auch als Laie
+umsetzen.</p>
+
+<div class="section-title">Wieso ist dieses Script kostenlos und wie refinanziert sich das Projekt?</div>
+<p>Wir bieten den RSS Grabber kostenlos an, da nicht wirklich ein Markt in diesem Bereich
+existiert. Zus&auml;tzlich m&uuml;ssten wir Vertreter auf die Welt losschicken, damit &uuml;berhaupt
+jemand eine kostenpflichtige RSS Grabber kauft. Dies m&ouml;chten wir allen Leuten da
+drau&szlig;en ersparen, daher wird das Script kostenlos angeboten.</p>
+<p>Zus&auml;tzlich dient dieses Projekt als kleine Referenz der SchubertMedia in ihren
+Programmierk&uuml;nsten. Nat&uuml;rlich m&uuml;ssen wir auch mehr oder weniger leben und m&ouml;chten
+dieses Projekt weitestgehend euren W&uuml;nschen entsprechend weiterentwickeln. Hierzu
+bieten wir eine Premium-Version an.</p>
+
+<div class="section-title">Script Anforderungen</div>
+<ul>
+  <li>Webspace ca. 5 MB (man ben&ouml;tigt noch zus&auml;tzlichen Speicher, wenn sie viele
+      Abfragen von den Feeds machen)</li>
+  <li>PHP-Unterst&uuml;tzung (mind. Version 8.5 oder h&ouml;her; das Script ist mit der
+      PHP-Version 8.5 getestet und funktionsf&auml;hig)</li>
+  <li>Eine MySQL- oder MariaDB-Datenbank mit Zeichensatz <code>utf8mb4</code></li>
+</ul>
+<p>Auf unserer Webseite https://www.hosterplus.de bekommt ihr f&uuml;r zwei Euro monatlich
+PHP-f&auml;higen Webspace mit einer MariaDB-Datenbank sowie einer eigenen
+Internetadresse und vielen weiteren Features.</p>
+<p>Das Script wurde umfangreich auf diesem Speicherplatz getestet und entsprechend
+angepasst. Nat&uuml;rlich l&auml;uft das Script auch auf anderen Webhosting-Anbietern.</p>
+
+<div class="section-title">Installation des Scripts</div>
+<ol>
+  <li>Bitte laden Sie alle Daten auf den Server.</li>
+  <li>Von dem Ordner (inc) und der Datei (install/index.php) die Rechte auf 777
+      setzen. Manch ein Webserver ben&ouml;tigt die Rechte 755, dies ist ein wenig abh&auml;ngig
+      von der Konfiguration des Webservers. Empfehlenswert sind aber die Rechte 755,
+      diese geben eine h&ouml;here Sicherheit. Da dies nicht f&uuml;r jeden Webserver unterst&uuml;tzt
+      wird, versuchen Sie es am besten als erstes mit den Rechten 777.</li>
+  <li>Rufen Sie den Ordner www.ihre-domain.de/rss-grabber/install/ auf und f&uuml;llen Sie
+      das ganze Formular aus. Die Routine legt die Tabellen <code>feeds</code>,
+      <code>feeds_post</code> und <code>admin</code> an.</li>
+  <li>Nachdem Sie die Installationsroutine ausgef&uuml;hrt haben, l&ouml;schen Sie bitte das
+      Verzeichnis &bdquo;install&ldquo;, dann sind Sie fertig.</li>
+  <li>Sie k&ouml;nnen sich nun &uuml;ber die Adresse www.ihre-domain.de/rss-grabber/ anmelden
+      und Ihre Feeds verwalten. Der Verwaltungsbereich ist durch ein Login gesch&uuml;tzt.
+      <strong>Standardzugang: Benutzer &bdquo;admin&ldquo;, Passwort &bdquo;admin&ldquo;.</strong></li>
+  <li>&Auml;ndern Sie das Standardpasswort umgehend. Erzeugen Sie dazu einen neuen
+      bcrypt-Hash, z.&nbsp;B. mit
+      <code>php -r "echo password_hash('IHR-NEUES-PASSWORT', PASSWORD_DEFAULT);"</code>,
+      und tragen Sie ihn in die Tabelle <code>admin</code> (Spalte
+      <code>password_hash</code>) ein. Sch&uuml;tzen Sie zus&auml;tzlich die Datei
+      <code>inc/config.php</code> vor direktem Abruf.</li>
+</ol>
+<p>Wenn Ihnen die Installation zu aufwendig ist, k&ouml;nnen Sie unseren Installationsservice
+unter der Adresse bestellen: https://www.php-space.info/script-installation-service/</p>
+
+<div class="section-title">Beispiel f&uuml;r Rechte auf 777 setzen</div>
+<ul>
+  <li>einfachste: FTP-Client-interne M&ouml;glichkeit: suchen Sie nach
+      &bdquo;Datei-Zugriffsrechte&ldquo; oder &bdquo;File Permissions&ldquo; auf englischen Clients.</li>
+  <li>Pures FTP per Kommandozeile:
+<pre>ftp aaa.bbb.ccc.ddd    # &lt;- aaa.-.ddd ist die FTP-Server-IP-Adresse
+user: _                # &lt;- Benutzername eingeben
+password: _            # &lt;- Kennwort eingeben
+pwd                    # &gt; zeigt das "working directory", normal "/"
+quote site chmod 7XX /html/xxxxx
+# 7XX - Berechtigungen in Oktal:
+# 7 - 111 - rwx
+# 5 - 101 - r-x
+# 4 - 100 - r--</pre></li>
+  <li>Falls Sie einen Shell-Zugang haben: einfach <code>chmod 7xx /xxxxx</code></li>
+</ul>
+
+<div class="section-title">Nutzungshinweis</div>
+<p>F&uuml;r jeglichen Schaden, der Ihnen durch die Benutzung dieses Skriptes entsteht,
+&uuml;bernehmen wir keine Haftung oder juristische Verantwortung. Das Script wurde
+gewissenhaft und sorgf&auml;ltig auf den neuesten Standard programmiert. Nat&uuml;rlich sind wir
+auch nur Menschen und machen daher Fehler. Wenn Ihnen ein Fehler auff&auml;llt, so nutzen
+Sie bitte unser Supportforum, um diesen zu melden. Wir werden uns dann so schnell wie
+m&ouml;glich darum k&uuml;mmern.</p>
+<p>Der Copyright-Hinweis darf nicht entfernt werden. Eine Premium-Version (ohne
+Copyright-Hinweis) k&ouml;nnen Sie unter
+https://www.php-space.info/script-erweiterung-bestellen/ f&uuml;r einmalig 9,95 &euro; inkl.
+19 % MwSt. erwerben. Mit dem Erwerb unterst&uuml;tzen Sie uns in der Weiterentwicklung und
+sichern den Fortbestand des Projekts.</p>
+<p>Sollten Sie noch Fragen haben, stehen wir Ihnen jederzeit gerne zur Verf&uuml;gung. Bei
+Fragen zum Script nutzen Sie bitte das Support-Forum. Ein Support per E-Mail wird nicht
+angeboten.</p>
+<p>Support-Forum: https://www.php-space.info/forum/</p>
+
+<div class="section-title">Vorschl&auml;ge/Kritik</div>
+<p>Wenn Sie Vorschl&auml;ge zu dem Script beziehungsweise Kritik haben, so nutzen Sie bitte
+unser Supportforum. Wir stehen Ihnen jederzeit gern zur Verf&uuml;gung und freuen uns &uuml;ber
+jeden Vorschlag. Beachten Sie hierbei: ohne Verbesserungsvorschl&auml;ge k&ouml;nnen wir auch
+nicht Ihre W&uuml;nsche umsetzen. Daher nehmen Sie sich auch ein wenig die Zeit, um einen
+Vorschlag im Forum zu ver&ouml;ffentlichen.</p>
+
+<div class="section-title">Tipps und Tricks</div>
+<p>Beachten Sie bei der Auswahl eines Webhosters, dass dieser f&uuml;r Sie eine Sicherung der
+Datenbank regelm&auml;&szlig;ig anfertigt. Es gibt zum Sichern der Datenbank unterschiedliche
+Backup-Tools, die diesen Job f&uuml;r Sie auch automatisch erledigen.</p>
+<p>Denn es wird nichts Schlimmeres geben, als einen Ausfall und einen Verlust der gesamten
+Daten. Es ist immer tragisch, wenn angesammelte Daten verloren gehen. Daher machen Sie
+sich Gedanken, wie Sie eine Datensicherung umsetzen. Bei Fragen hierzu k&ouml;nnen Sie
+nat&uuml;rlich auch bei uns im Forum nachfragen oder uns entsprechend beauftragen.</p>
+<p>Zus&auml;tzlich sollten Sie in regelm&auml;&szlig;igen Abst&auml;nden auf unserer Webseite schauen. Wir
+ver&ouml;ffentlichen in unregelm&auml;&szlig;igen Abst&auml;nden neue Versionen. Hierbei geben wir an, welche
+Fehler im Script behoben wurden. Sollte hierbei ein kritischer Fehler enthalten gewesen
+sein, m&uuml;ssen Sie das Update so schnell wie m&ouml;glich einspielen.</p>
+
+<div class="section-title">Interesse an einer individuellen Erweiterung?</div>
+<p>Ben&ouml;tigen Sie eine Erweiterung f&uuml;r das Script oder eine individuelle
+Programmierdienstleistung? Wenn ja, so nehmen Sie mit uns Kontakt auf und wir
+unterbreiten Ihnen ein entsprechendes Angebot.</p>
+
+</body>
+</html>
