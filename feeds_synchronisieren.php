@@ -27,6 +27,7 @@ $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
 $lang_formular['meldung']='';
+$lang_formular['csrf']=rssg_csrf_token();
 
 $template_formular = new PARSE;
 $template_formular -> TEMPLATE ($lang_formular,  __DIR__.'/tpl/feeds_synchronisieren.html');

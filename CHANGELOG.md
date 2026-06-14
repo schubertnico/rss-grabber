@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unveröffentlicht] – Frontend-Modernisierung + CSRF-Sync
+
+### Geändert
+- **Kein prototype.js / jQuery 1.4.2 mehr:** Die gesamte Frontend-Logik
+  (Feed-Synchronisierung + Endless-Scroll) läuft jetzt über abhängigkeitsfreies
+  Vanilla-JS (`java/rss-grabber.js`, `fetch`). `tpl/layout.html` lädt nur noch
+  diese eine Datei.
+- **CSRF-Schutz für die Synchronisierung:** `graber_ajax.php` verlangt jetzt ein
+  CSRF-Token (`POST csrf`) und weist Anfragen ohne gültiges Token mit HTTP 403
+  ab. Das Token wird per `data-csrf`-Attribut an das JS übergeben.
+
+### Entfernt
+- `java/prototype.js`, `java/jQuery.js`, `java/jquery-1.4.2.min.js` (veraltet, 2010).
+
+### Tests
+- E2E um Sync-Flow (Vanilla-JS) und CSRF-Negativtest erweitert.
+
 ## [Unveröffentlicht] – Robustheit & Code-Qualität (Runde 2)
 
 ### Geändert
