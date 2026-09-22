@@ -72,13 +72,13 @@ Version 2.0 von 2022.
 
 ## Abnahmekriterien
 
-- [ ] `vendor/bin/phpunit` grün, Coverage `classes/` ≥ 80 %.
-- [ ] `vendor/bin/phpstan analyse` → `[OK] No errors`.
-- [ ] Playwright-E2E grün, `php-error.log` leer.
-- [ ] `git describe --tags` auf `main` liefert `v3.0.0` ohne Abstand.
-- [ ] `gh release view v3.0.0` zeigt das Release mit angehängtem ZIP.
-- [ ] Das ZIP enthält keine Tests, keine Docker-Dateien und keine `config.php`.
-- [ ] Die Produktseite rendert lokal im php-space-Container ohne PHP-Fehler
+- [x] `vendor/bin/phpunit` grün, Coverage `classes/` ≥ 80 %.
+- [x] `vendor/bin/phpstan analyse` → `[OK] No errors`.
+- [x] Playwright-E2E grün, `php-error.log` leer.
+- [x] `git describe --tags` auf `main` liefert `v3.0.0` ohne Abstand.
+- [x] `gh release view v3.0.0` zeigt das Release mit angehängtem ZIP.
+- [x] Das ZIP enthält keine Tests, keine Docker-Dateien und keine `config.php`.
+- [x] Die Produktseite rendert lokal im php-space-Container ohne PHP-Fehler
       und nennt nirgends mehr die Version 2.00 als aktuelle Fassung.
-- [ ] Alle neuen Bilddateien sind unter `img/` vorhanden und über die
+- [x] Alle neuen Bilddateien sind unter `img/` vorhanden und über die
       `images_`-Rewrite-Regel abrufbar.
