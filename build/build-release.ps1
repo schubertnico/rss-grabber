@@ -55,7 +55,9 @@ $semver = ($semverParts[0..2]) -join '.'
 $excludeDirs = @(
     '.git', '.idea', '.claude', '.docker', 'vendor', 'node_modules',
     'tests', 'docs', 'build', '.phpunit.cache', 'test-results',
-    'playwright-report', 'coverage'
+    'playwright-report', 'coverage',
+    # Demonstrationsbilder fuer die Produktseite, keine Laufzeitdateien
+    'Screenshots'
 )
 $excludeFiles = @(
     'inc/config.php',
