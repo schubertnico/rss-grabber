@@ -73,9 +73,9 @@ daher auf `classes/` – die testbare Geschäftslogik – gemäß Testpyramide.
 
 ## Akzeptanzkriterien
 
-- [ ] Alle Tabellen/Verbindungen sind `utf8mb4`; gespeicherte Umlaute erscheinen
+- [x] Alle Tabellen/Verbindungen sind `utf8mb4`; gespeicherte Umlaute erscheinen
       korrekt (kein Mojibake) in `ausgabe.php`.
-- [ ] PHPUnit läuft grün, Coverage `classes/` ≥ 80 %.
-- [ ] Controller-Smoke-Tests grün (kein PHP-Fehler-Output).
-- [ ] Playwright-E2E grün: keine 404/500, keine PHP-Fehler im HTML.
-- [ ] `php-error.log` bleibt nach Durchlauf aller Seiten leer.
+- [x] PHPUnit läuft grün, Coverage `classes/` ≥ 80 %.
+- [x] Controller-Smoke-Tests grün (kein PHP-Fehler-Output).
+- [x] Playwright-E2E grün: keine 404/500, keine PHP-Fehler im HTML.
+- [x] `php-error.log` bleibt nach Durchlauf aller Seiten leer.

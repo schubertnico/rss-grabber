@@ -3,7 +3,7 @@
 Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/).
 
-## [3.0.0] – 2026-06-14
+## [3.0.0] – 2026-09-22
 
 Große Modernisierung der Free-Version: lauffähig unter **PHP 8.5**, durchgängiges
 **UTF-8**, abgesicherter Verwaltungsbereich, abhängigkeitsfreies Frontend und eine
@@ -26,6 +26,10 @@ statischer Analyse (PHPStan Level 8).
 - Tests: PHPUnit (Unit/Integration/Smoke) + Playwright-E2E.
 - Statische Analyse **PHPStan Level 8** (`composer analyse`).
 - Docker-Entwicklungsumgebung unter `.docker/` (PHP 8.5, Composer, pcov).
+- **Bebilderte Installationsanleitung** (`Installationsanleitung_3.0.pdf`) mit
+  Abschnitten zum Umstieg von Version 2.0, zur Bedienung und zur Fehlersuche.
+- Demonstrations-Screenshots unter `Screenshots/v3.0/`, erzeugt über
+  `build/screenshots.mjs`.
 
 ### Geändert
 - **UTF-8:** `mysqli_set_charset('utf8mb4')`, verlustbehaftete
@@ -42,12 +46,18 @@ statischer Analyse (PHPStan Level 8).
   ausgelagert; Controller sind nun dünn.
 - **Mindestanforderung** im Installer auf PHP **8.5** angehoben.
 - Versionskennzeichnung durchgängig auf **free v3.0**.
+- Beim Feed-Abruf entfällt der Kontextabschnitt `https`. PHP wertet ihn nicht
+  aus; für beide Schemata gilt der Abschnitt `http`, der den Zeitablauf schon
+  gesetzt hat. Der Eintrag war also wirkungslos, kein Fehlverhalten.
 
 ### Behoben
 - **Endless-Scroll lud das gesamte Layout** statt nur der Beiträge (AJAX-
   Erkennung bei `ajax=0`). Jetzt korrekt am Vorhandensein des Parameters erkannt.
 - `limitch()` kürzt zeichenweise (`mb_substr`) – keine zerschnittenen Umlaute.
 - Anzeigename bei `https`-Feeds (`rssg_feed_name()`).
+- Der gesendete Anwendungsname (User-Agent) beim Feed-Abruf nannte weiterhin
+  `RSS-Grabber/2.0`; er lautet jetzt `RSS-Grabber/3.0` und nennt die
+  Projektadresse, damit Betreiber die Zugriffe zuordnen können.
 
 ### Entfernt
 - `java/prototype.js`, `java/jQuery.js`, `java/jquery-1.4.2.min.js` (veraltet, 2010).

@@ -74,7 +74,7 @@ docker exec rss-grabber_web bash -c "cd /var/www/html && vendor/bin/phpunit --co
 - **Unit:** `limitch`, `date_mysql2german`, `PARSE`
 - **Integration:** `addItem()` gegen eine Test-DB inkl. UTF-8-Roundtrip;
   Controller-Smoke-Tests (jede Seite rendert ohne PHP-Fehler)
-- **Coverage:** ≥ 80 % über `classes/` (aktuell ~94 %)
+- **Coverage:** ≥ 80 % über `classes/` (aktuell 90,6 % der Zeilen, 51 Tests)
 
 ### Statische Analyse (PHPStan)
 
@@ -99,11 +99,28 @@ docker run --rm --network rss-grabber_rss-grabber-network \
 
 Prüft: keine 4xx/5xx (auch Assets), keine PHP-Fehler im HTML, keine
 JS-Fehler, Navigation, korrekte Umlaut-Darstellung und der CRUD-Fluss.
+17 Tests, alle grün.
+
+### Screenshots
+
+`build/screenshots.mjs` erzeugt die Demonstrations-Screenshots unter
+`Screenshots/v<version>/`. Das Skript meldet sich mit dem Standardzugang an,
+stößt einmal die Synchronisierung an – ohne sie zeigen die Bilder eine leere
+Anwendung – und bildet jeweils den Inhaltsbereich ab.
+
+```bash
+docker run --rm --network rss-grabber_rss-grabber-network \
+  -e BASE_URL=http://web -v "$PWD:/work" -w /work \
+  mcr.microsoft.com/playwright:v1.50.0-noble \
+  bash -c "node build/screenshots.mjs 3.0"
+```
 
 ## Dokumentation
 
 - [`INSTALLATION.md`](INSTALLATION.md) – **Installationsanleitung (v3.0)**
+- `Installationsanleitung_3.0.pdf` – dieselbe Anleitung als bebildertes PDF
 - [`CHANGELOG.md`](CHANGELOG.md) – Release Notes (v3.0.0)
 - [`docs/SPECS.md`](docs/SPECS.md) – Spezifikation der Modernisierung
 - [`docs/PLAN.md`](docs/PLAN.md) – Umsetzungsplan
+- [`docs/SPECS-RELEASE-3.0.md`](docs/SPECS-RELEASE-3.0.md) – Abschluss des Release 3.0
 - [`.docker/README.md`](.docker/README.md) – Docker-Umgebung

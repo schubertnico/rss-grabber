@@ -53,14 +53,14 @@ Neue Tabelle `admin` (utf8mb4) wird in `.docker/init.sql` und
 
 ## Akzeptanzkriterien
 
-- [ ] Geschützte Seiten ohne Login → Redirect auf `login.php`.
-- [ ] Login mit `admin`/`admin` → Zugriff; Logout beendet Session.
-- [ ] POST ohne gültiges CSRF-Token → keine Änderung.
-- [ ] Feed mit `<script>`/HTML im Titel wird escaped ausgegeben (kein aktives JS).
-- [ ] Eingaben mit `'`/`"` brechen keine Query (Prepared Statements).
-- [ ] PHPUnit grün (inkl. neuer Auth-/Security-Tests), Coverage `classes/` ≥ 80 %.
-- [ ] Playwright-E2E grün (Login-Flow, CSRF-Abweisung, XSS-Escaping).
-- [ ] `php-error.log` bleibt leer.
+- [x] Geschützte Seiten ohne Login → Redirect auf `login.php`.
+- [x] Login mit `admin`/`admin` → Zugriff; Logout beendet Session.
+- [x] POST ohne gültiges CSRF-Token → keine Änderung.
+- [x] Feed mit `<script>`/HTML im Titel wird escaped ausgegeben (kein aktives JS).
+- [x] Eingaben mit `'`/`"` brechen keine Query (Prepared Statements).
+- [x] PHPUnit grün (inkl. neuer Auth-/Security-Tests), Coverage `classes/` ≥ 80 %.
+- [x] Playwright-E2E grün (Login-Flow, CSRF-Abweisung, XSS-Escaping).
+- [x] `php-error.log` bleibt leer.
 
 ## Nicht-Ziele (dokumentierte Folgearbeiten)
 

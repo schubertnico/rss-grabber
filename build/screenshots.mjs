@@ -36,8 +36,40 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 
+/** Hoechste Bildhoehe; laengere Seiten werden oben abgeschnitten. */
+const MAX_HOEHE = 1400;
+/** Rand um den Inhalt herum, damit das Bild nicht an der Kante klebt. */
+const RAND = 12;
+
+/**
+ * Bildet den Inhaltsbereich ab statt der ganzen Seite. Ohne das steht unter
+ * kurzen Seiten bis zur halben Bildhoehe Leerraum, was die Bilder fuer die
+ * Anleitung und die Produktseite unbrauchbar macht.
+ */
 async function shot(name) {
-    await page.screenshot({ path: `${outDir}/${name}.png`, fullPage: true });
+    const ziel = `${outDir}/${name}.png`;
+    const box = await page.locator('.layout').first().boundingBox().catch(() => null);
+
+    if (!box) {
+        await page.screenshot({ path: ziel, fullPage: true });
+        console.log('  ' + name + '.png (ganze Seite)');
+        return;
+    }
+
+    const breite = await page.evaluate(() => document.documentElement.scrollWidth);
+    const x = Math.max(0, box.x - RAND);
+    const y = Math.max(0, box.y - RAND);
+
+    await page.screenshot({
+        path: ziel,
+        fullPage: true,
+        clip: {
+            x,
+            y,
+            width: Math.min(box.width + RAND * 2, breite - x),
+            height: Math.min(box.height + RAND * 2, MAX_HOEHE),
+        },
+    });
     console.log('  ' + name + '.png');
 }
 
@@ -52,6 +84,20 @@ await page.fill('input[name="username"]', 'admin');
 await page.fill('input[name="password"]', 'admin');
 await page.click('input[name="login_btn"]');
 await page.waitForLoadState('load');
+
+/*
+ * Einmal synchronisieren, bevor die Bilder entstehen. Ohne diesen Lauf zeigt
+ * die Feed-Uebersicht einen leeren Status und die Beitragsanzeige nichts,
+ * was als Demonstration wenig taugt.
+ */
+await page.goto(`${BASE}/feeds_synchronisieren.php`, { waitUntil: 'load' });
+await page.click('[data-sync-trigger]');
+await page.waitForFunction(
+    () => (document.getElementById('update')?.textContent || '').trim().length > 0,
+    null,
+    { timeout: 120000 },
+).catch(() => console.log('  (Synchronisierung ohne Rueckmeldung, fahre fort)'));
+await page.waitForTimeout(1500);
 
 // Geschuetzte + oeffentliche Seiten
 const pages = [

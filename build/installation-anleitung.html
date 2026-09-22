@@ -25,6 +25,18 @@
         border: 1px solid #ddd; padding: 8px 10px; white-space: pre-wrap;
         page-break-inside: avoid; }
   code { font-family: "Courier New", monospace; font-size: 9.5pt; }
+  figure { margin: 12px 0 16px; page-break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid #b7b3b3; display: block; }
+  figcaption { font-size: 9pt; margin-top: 4px; color: #333; }
+  table.uebersicht { width: 100%; border-collapse: collapse; margin: 8px 0 14px;
+                     page-break-inside: avoid; font-size: 9.5pt; }
+  table.uebersicht th { background: #2b2b2b; color: #fff; text-align: left;
+                        padding: 6px 8px; border: 1px solid #b7b3b3; }
+  table.uebersicht td { padding: 6px 8px; border: 1px solid #b7b3b3;
+                        vertical-align: top; }
+  table.uebersicht tr:nth-child(even) td { background: #f4f4f4; }
+  .hinweis { background: #eeeded; border-left: 4px solid #2b2b2b;
+             padding: 8px 10px; margin: 10px 0; page-break-inside: avoid; }
 </style>
 </head>
 <body>
@@ -50,7 +62,7 @@
 
 <hr>
 
-<div class="meta">Datum: 14.06.2026</div>
+<div class="meta">Datum: 22.09.2026</div>
 <div class="meta">Version der RSS Grabber: v3.0</div>
 <div class="meta">Autor des Scripts: Nico Schubert / SchubertMedia</div>
 <div class="meta">URL: https://www.php-space.info/rss-grabber/</div>
@@ -61,6 +73,27 @@ nutzen um sich auf dem Laufenden in verschiedenen Themengebiete zu halten. Die
 Verwaltung und Verwendung von RSS Grabber ist sehr einfach. F&uuml;r die Installation von
 RSS Grabber ben&ouml;tigen sie kein gro&szlig;es Fachwissen und k&ouml;nnen dies auch als Laie
 umsetzen.</p>
+
+<div class="section-title">Das ist neu in der Version 3.0</div>
+<p>Die Version 3.0 ist eine gr&uuml;ndliche &Uuml;berarbeitung der Fassung von 2022. Wer von der
+Version 2.0 umsteigt, findet die gewohnte Oberfl&auml;che vor, darunter hat sich aber
+einiges ge&auml;ndert:</p>
+<ul>
+  <li><strong>Anmeldung f&uuml;r den Verwaltungsbereich.</strong> Feeds anlegen, bearbeiten,
+      l&ouml;schen und synchronisieren setzt jetzt eine Anmeldung voraus. Bisher konnte das
+      jeder, der die Adresse kannte. &Ouml;ffentlich erreichbar bleibt nur die
+      Beitragsanzeige.</li>
+  <li><strong>Umlaute werden korrekt gespeichert.</strong> Datenbank und Ausgabe laufen
+      durchg&auml;ngig auf <code>utf8mb4</code>. Aus &bdquo;f&uuml;r&ldquo; wird kein
+      &bdquo;f&Atilde;&frac14;r&ldquo; mehr.</li>
+  <li><strong>PHP 8.5.</strong> Das Script l&auml;uft ohne Warnungen und ohne veraltete
+      Aufrufe.</li>
+  <li><strong>Kein jQuery und kein prototype.js mehr.</strong> Die beiden Bibliotheken von
+      2010 sind ersatzlos entfallen, das Nachladen beim Scrollen erledigt jetzt eine
+      schlanke eigene Datei.</li>
+  <li><strong>Abgesicherte Eingaben.</strong> Alle Datenbankabfragen laufen &uuml;ber
+      vorbereitete Anweisungen, alle Ausgaben werden maskiert.</li>
+</ul>
 
 <div class="section-title">Wieso ist dieses Script kostenlos und wie refinanziert sich das Projekt?</div>
 <p>Wir bieten den RSS Grabber kostenlos an, da nicht wirklich ein Markt in diesem Bereich
@@ -78,6 +111,11 @@ bieten wir eine Premium-Version an.</p>
       Abfragen von den Feeds machen)</li>
   <li>PHP-Unterst&uuml;tzung (mind. Version 8.5 oder h&ouml;her; das Script ist mit der
       PHP-Version 8.5 getestet und funktionsf&auml;hig)</li>
+  <li>Die PHP-Module <code>mysqli</code>, <code>simplexml</code> und <code>iconv</code>.
+      Alle drei geh&ouml;ren zur Standardausstattung und sind bei jedem g&auml;ngigen Webhoster
+      vorhanden.</li>
+  <li><code>allow_url_fopen</code> muss eingeschaltet sein, sonst kann das Script die
+      Feeds nicht abrufen.</li>
   <li>Eine MySQL- oder MariaDB-Datenbank mit Zeichensatz <code>utf8mb4</code></li>
 </ul>
 <p>Auf unserer Webseite https://www.hosterplus.de bekommt ihr f&uuml;r zwei Euro monatlich
@@ -88,46 +126,215 @@ angepasst. Nat&uuml;rlich l&auml;uft das Script auch auf anderen Webhosting-Anbi
 
 <div class="section-title">Installation des Scripts</div>
 <ol>
-  <li>Bitte laden Sie alle Daten auf den Server.</li>
-  <li>Von dem Ordner (inc) und der Datei (install/index.php) die Rechte auf 777
-      setzen. Manch ein Webserver ben&ouml;tigt die Rechte 755, dies ist ein wenig abh&auml;ngig
-      von der Konfiguration des Webservers. Empfehlenswert sind aber die Rechte 755,
-      diese geben eine h&ouml;here Sicherheit. Da dies nicht f&uuml;r jeden Webserver unterst&uuml;tzt
-      wird, versuchen Sie es am besten als erstes mit den Rechten 777.</li>
-  <li>Rufen Sie den Ordner www.ihre-domain.de/rss-grabber/install/ auf und f&uuml;llen Sie
-      das ganze Formular aus. Die Routine legt die Tabellen <code>feeds</code>,
-      <code>feeds_post</code> und <code>admin</code> an.</li>
-  <li>Nachdem Sie die Installationsroutine ausgef&uuml;hrt haben, l&ouml;schen Sie bitte das
-      Verzeichnis &bdquo;install&ldquo;, dann sind Sie fertig.</li>
-  <li>Sie k&ouml;nnen sich nun &uuml;ber die Adresse www.ihre-domain.de/rss-grabber/ anmelden
-      und Ihre Feeds verwalten. Der Verwaltungsbereich ist durch ein Login gesch&uuml;tzt.
-      <strong>Standardzugang: Benutzer &bdquo;admin&ldquo;, Passwort &bdquo;admin&ldquo;.</strong></li>
-  <li>&Auml;ndern Sie das Standardpasswort umgehend. Erzeugen Sie dazu einen neuen
-      bcrypt-Hash, z.&nbsp;B. mit
-      <code>php -r "echo password_hash('IHR-NEUES-PASSWORT', PASSWORD_DEFAULT);"</code>,
-      und tragen Sie ihn in die Tabelle <code>admin</code> (Spalte
-      <code>password_hash</code>) ein. Sch&uuml;tzen Sie zus&auml;tzlich die Datei
-      <code>inc/config.php</code> vor direktem Abruf.</li>
+  <li>Legen Sie &uuml;ber die Verwaltungsoberfl&auml;che Ihres Webhosters eine Datenbank an und
+      notieren Sie sich Host, Datenbankname, Benutzername und Kennwort. W&auml;hlen Sie als
+      Zeichensatz <code>utf8mb4</code>.</li>
+  <li>Laden Sie alle Dateien aus dem Archiv auf den Server, zum Beispiel in das
+      Verzeichnis <code>/rss-grabber/</code>.</li>
+  <li>Sorgen Sie daf&uuml;r, dass das Script in den Ordner <code>inc</code> schreiben darf.
+      Dort wird bei der Installation die Datei <code>config.php</code> angelegt. Wie Sie
+      die Rechte setzen, steht im n&auml;chsten Abschnitt.</li>
+  <li>Rufen Sie im Browser die Adresse <code>www.ihre-domain.de/rss-grabber/install/</code>
+      auf und f&uuml;llen Sie das Formular vollst&auml;ndig aus. Die Routine legt die Tabellen
+      <code>feeds</code>, <code>feeds_post</code> und <code>admin</code> an und schreibt
+      die Konfigurationsdatei.</li>
 </ol>
+
+<figure>
+  <img src="../Screenshots/v3.0/08-installation.png" alt="Formular der Installationsroutine">
+  <figcaption>Abbildung 1: Die Installationsroutine fragt die Datenbankdaten und vier
+  Einstellungen ab. &bdquo;Feeds pro Aktualisierung&ldquo; begrenzt, wie viele Feeds ein
+  Synchronisierungslauf abholt; der Wert 10 ist f&uuml;r die meisten Webspaces passend.</figcaption>
+</figure>
+
+<ol start="5">
+  <li>L&ouml;schen Sie nach der erfolgreichen Installation das Verzeichnis
+      <code>install</code> vom Server. Solange es erreichbar ist, kann jeder Ihre
+      Installation &uuml;berschreiben.</li>
+  <li>Rufen Sie <code>www.ihre-domain.de/rss-grabber/</code> auf und melden Sie sich an.
+      Der Standardzugang lautet Benutzer <strong>admin</strong>, Passwort
+      <strong>admin</strong>.</li>
+</ol>
+
+<figure>
+  <img src="../Screenshots/v3.0/01-login.png" alt="Anmeldeformular des Verwaltungsbereichs">
+  <figcaption>Abbildung 2: Neu in der Version 3.0 &ndash; der Verwaltungsbereich ist durch
+  eine Anmeldung gesch&uuml;tzt.</figcaption>
+</figure>
+
+<div class="hinweis">
+  <strong>Wichtig:</strong> &Auml;ndern Sie das Standardpasswort sofort nach der ersten
+  Anmeldung. Erzeugen Sie dazu einen neuen bcrypt-Hash, zum Beispiel mit
+  <code>php -r "echo password_hash('IHR-NEUES-PASSWORT', PASSWORD_DEFAULT);"</code>,
+  und tragen Sie ihn in der Tabelle <code>admin</code> in die Spalte
+  <code>password_hash</code> ein. Das geht in jeder Datenbankverwaltung wie phpMyAdmin.
+</div>
+
 <p>Wenn Ihnen die Installation zu aufwendig ist, k&ouml;nnen Sie unseren Installationsservice
 unter der Adresse bestellen: https://www.php-space.info/script-installation-service/</p>
 
-<div class="section-title">Beispiel f&uuml;r Rechte auf 777 setzen</div>
-<ul>
-  <li>einfachste: FTP-Client-interne M&ouml;glichkeit: suchen Sie nach
-      &bdquo;Datei-Zugriffsrechte&ldquo; oder &bdquo;File Permissions&ldquo; auf englischen Clients.</li>
-  <li>Pures FTP per Kommandozeile:
+<div class="section-title">Schreibrechte richtig setzen</div>
+<p>Der Ordner <code>inc</code> muss w&auml;hrend der Installation beschreibbar sein. Bei den
+meisten Webhostern ist das bereits der Fall, weil die Dateien Ihnen geh&ouml;ren. Erst wenn
+die Installationsroutine meldet, dass sie die Konfigurationsdatei nicht anlegen kann,
+m&uuml;ssen Sie selbst eingreifen.</p>
+<p>Gehen Sie dabei in dieser Reihenfolge vor:</p>
+<ol>
+  <li><strong>755 f&uuml;r Verzeichnisse, 644 f&uuml;r Dateien.</strong> Das ist die richtige
+      Einstellung f&uuml;r einen normal eingerichteten Webserver und sollte in fast allen
+      F&auml;llen gen&uuml;gen.</li>
+  <li><strong>775 f&uuml;r den Ordner <code>inc</code>.</strong> Hilft, wenn der Webserver
+      unter einer anderen Kennung als Ihr FTP-Zugang l&auml;uft, aber zur selben Gruppe
+      geh&ouml;rt.</li>
+  <li><strong>777 nur im Notfall.</strong> Damit darf jeder Benutzer des Servers in den
+      Ordner schreiben. Setzen Sie den Wert nur, wenn nichts anderes funktioniert, und
+      stellen Sie ihn <em>nach</em> der Installation wieder auf 755 zur&uuml;ck. Die
+      Konfigurationsdatei ist dann bereits geschrieben und wird nicht mehr ver&auml;ndert.</li>
+</ol>
+<p>Die Rechte &auml;ndern Sie am einfachsten im FTP-Programm &uuml;ber den Men&uuml;punkt
+&bdquo;Datei-Zugriffsrechte&ldquo; beziehungsweise &bdquo;File Permissions&ldquo;. &Uuml;ber die
+Kommandozeile geht es so:</p>
 <pre>ftp aaa.bbb.ccc.ddd    # &lt;- aaa.-.ddd ist die FTP-Server-IP-Adresse
 user: _                # &lt;- Benutzername eingeben
 password: _            # &lt;- Kennwort eingeben
 pwd                    # &gt; zeigt das "working directory", normal "/"
-quote site chmod 7XX /html/xxxxx
-# 7XX - Berechtigungen in Oktal:
+quote site chmod 755 /html/rss-grabber/inc
+# Berechtigungen in Oktal:
 # 7 - 111 - rwx
 # 5 - 101 - r-x
-# 4 - 100 - r--</pre></li>
-  <li>Falls Sie einen Shell-Zugang haben: einfach <code>chmod 7xx /xxxxx</code></li>
+# 4 - 100 - r--</pre>
+<p>Falls Sie einen Shell-Zugang haben, gen&uuml;gt <code>chmod 755 inc</code>.</p>
+
+<div class="section-title">Die ersten Schritte nach der Installation</div>
+<p>Nach der Anmeldung f&uuml;hren vier Men&uuml;punkte durch das Script. In der Reihenfolge, in der
+Sie sie beim ersten Mal brauchen:</p>
+
+<p><strong>1. Neuen Feed eintragen.</strong> Sie geben die Adresse der Webseite und die
+Adresse des Feeds an. Beide finden Sie auf der jeweiligen Seite, der Feed ist dort meist
+mit dem orangefarbenen RSS-Symbol verlinkt. Das Script erkennt selbst, ob es sich um
+einen RSS-2.0- oder einen Atom-Feed handelt.</p>
+
+<figure>
+  <img src="../Screenshots/v3.0/04-feed-hinzufuegen.png" alt="Formular zum Eintragen eines neuen Feeds">
+  <figcaption>Abbildung 3: Ein neuer Feed braucht nur zwei Adressen.</figcaption>
+</figure>
+
+<p><strong>2. Feeds synchronisieren.</strong> Erst dieser Schritt holt die Beitr&auml;ge ab.
+Die Seite arbeitet die eingetragenen Feeds nacheinander ab und meldet, was sie gefunden
+hat. Wie viele Feeds ein Lauf abholt, haben Sie bei der Installation festgelegt.</p>
+
+<figure>
+  <img src="../Screenshots/v3.0/06-feeds-synchronisieren.png" alt="Seite zum Synchronisieren der Feeds">
+  <figcaption>Abbildung 4: Die Synchronisierung l&auml;uft im Hintergrund ab, die Seite
+  bleibt bedienbar.</figcaption>
+</figure>
+
+<p><strong>3. Alle Feeds anzeigen.</strong> Hier stehen die gesammelten Beitr&auml;ge nach
+Datum sortiert. Weitere Beitr&auml;ge werden automatisch nachgeladen, sobald Sie ans Ende
+der Seite scrollen. Diese Seite ist die einzige, die auch ohne Anmeldung erreichbar
+ist &ndash; sie ist f&uuml;r Ihre Besucher gedacht.</p>
+
+<figure>
+  <img src="../Screenshots/v3.0/02-ausgabe-beitraege.png" alt="Anzeige der gesammelten Beitr&auml;ge">
+  <figcaption>Abbildung 5: Die Beitragsanzeige l&auml;dt beim Scrollen selbstt&auml;tig nach.</figcaption>
+</figure>
+
+<p><strong>4. Feed verwalten.</strong> Die &Uuml;bersicht zeigt zu jedem Feed, wann er zuletzt
+abgefragt wurde und ob das geklappt hat. Von hier aus &auml;ndern oder l&ouml;schen Sie einen
+Eintrag. Steht bei einem Feed dauerhaft ein Fehler, pr&uuml;fen Sie die hinterlegte
+Feed-Adresse im Browser.</p>
+
+<figure>
+  <img src="../Screenshots/v3.0/03-feeds-verwalten.png" alt="&Uuml;bersicht der eingetragenen Feeds">
+  <figcaption>Abbildung 6: Die Feed-&Uuml;bersicht mit Zeitpunkt und Ergebnis des letzten
+  Laufs.</figcaption>
+</figure>
+
+<p>Damit neue Beitr&auml;ge regelm&auml;&szlig;ig ankommen, sollten Sie die Synchronisierung nicht von
+Hand ansto&szlig;en, sondern einen Cronjob einrichten, der die Seite in festen Abst&auml;nden
+aufruft. In der kostenlosen Fassung ist das eine manuelle Einrichtung bei Ihrem
+Webhoster; die Premium-Version bringt die Cronjob-Unterst&uuml;tzung bereits mit.</p>
+
+<div class="section-title">Umstieg von der Version 2.0</div>
+<p>Ein Update ist kein Ersetzen einzelner Dateien. Gehen Sie so vor:</p>
+<ol>
+  <li><strong>Sichern Sie zuerst die Datenbank</strong> und das bisherige Verzeichnis.
+      Ohne Sicherung kein Update.</li>
+  <li><strong>Notieren Sie Ihre Einstellungen</strong> aus der alten
+      <code>inc/config.php</code>: Zugangsdaten zur Datenbank und die vier Werte zu
+      Feeds, Eintr&auml;gen und L&auml;nge der Beschreibung.</li>
+  <li><strong>Laden Sie die neuen Dateien hoch</strong> und &uuml;berschreiben Sie dabei die
+      alten. Die drei Dateien <code>java/prototype.js</code>, <code>java/jQuery.js</code>
+      und <code>java/jquery-1.4.2.min.js</code> werden nicht mehr gebraucht und sollten
+      vom Server gel&ouml;scht werden.</li>
+  <li><strong>Rufen Sie <code>install/</code> erneut auf</strong> und geben Sie dieselben
+      Datenbankdaten wie bisher an. Vorhandene Tabellen bleiben erhalten, die neue
+      Tabelle <code>admin</code> f&uuml;r die Anmeldung kommt hinzu.</li>
+  <li><strong>Stellen Sie die Datenbank auf <code>utf8mb4</code> um</strong>, falls sie
+      noch auf <code>latin1</code> l&auml;uft. Neue Beitr&auml;ge speichert die Version 3.0
+      korrekt; bereits vorhandene Beitr&auml;ge mit falsch abgelegten Umlauten werden dadurch
+      nicht r&uuml;ckwirkend richtig. Wenn Sie den Altbestand nicht brauchen, ist das L&ouml;schen
+      der Tabelle <code>feeds_post</code> und ein neuer Synchronisierungslauf der
+      einfachste Weg.</li>
+  <li><strong>L&ouml;schen Sie das Verzeichnis <code>install</code></strong> und &auml;ndern Sie
+      das Standardpasswort.</li>
+</ol>
+
+<div class="section-title">Nach der Installation an die Sicherheit denken</div>
+<ul>
+  <li>Standardpasswort &auml;ndern. Das ist der wichtigste Punkt, denn der Zugang
+      <code>admin</code>/<code>admin</code> ist &ouml;ffentlich bekannt.</li>
+  <li>Verzeichnis <code>install</code> gel&ouml;scht halten, auch nach einem Update.</li>
+  <li>Die Datei <code>inc/config.php</code> enth&auml;lt Ihre Datenbank-Zugangsdaten. Sie
+      sollte nicht direkt abrufbar sein; im Auslieferungszustand sorgt die mitgelieferte
+      <code>.htaccess</code> daf&uuml;r.</li>
+  <li>Betreiben Sie die Seite &uuml;ber <code>https</code>. Sonst geht Ihr Passwort im
+      Klartext &uuml;ber die Leitung.</li>
 </ul>
+
+<div class="section-title">Wenn etwas nicht funktioniert</div>
+<table class="uebersicht">
+  <tr>
+    <th style="width:42%;">Beobachtung</th>
+    <th style="width:58%;">Ursache und L&ouml;sung</th>
+  </tr>
+  <tr>
+    <td>Der Aufruf landet immer wieder bei <code>install/</code></td>
+    <td>Die Datei <code>inc/config.php</code> fehlt. Die Installationsroutine konnte sie
+        nicht schreiben &ndash; Schreibrechte pr&uuml;fen und die Routine erneut aufrufen.</td>
+  </tr>
+  <tr>
+    <td>&bdquo;Datenbankverbindung nicht m&ouml;glich&ldquo;</td>
+    <td>Zugangsdaten in <code>inc/config.php</code> pr&uuml;fen. Liegt die Datenbank auf
+        demselben Server, lautet der Host in der Regel <code>localhost</code>.</td>
+  </tr>
+  <tr>
+    <td>Umlaute erscheinen als kryptische Zeichen</td>
+    <td>Datenbank und Tabellen m&uuml;ssen auf <code>utf8mb4</code> stehen. Bestehende
+        Beitr&auml;ge werden durch die Umstellung nicht r&uuml;ckwirkend korrigiert.</td>
+  </tr>
+  <tr>
+    <td>Ein Feed liefert keine Beitr&auml;ge</td>
+    <td>Feed-Adresse im Browser aufrufen: Kommt dort XML an? Ist die Seite nur &uuml;ber
+        <code>https</code> erreichbar? Und ist <code>allow_url_fopen</code> auf Ihrem
+        Webspace eingeschaltet?</td>
+  </tr>
+  <tr>
+    <td>Beim Scrollen wird nichts nachgeladen</td>
+    <td>JavaScript im Browser eingeschaltet? Die Beitr&auml;ge sind auch ohne Nachladen
+        vollst&auml;ndig &uuml;ber die Seitenzahlen erreichbar.</td>
+  </tr>
+  <tr>
+    <td>Die Installationsroutine meldet die PHP-Version</td>
+    <td>Der Webspace l&auml;uft mit einer &auml;lteren PHP-Version. In der Verwaltung Ihres
+        Hosters auf 8.5 oder h&ouml;her umstellen.</td>
+  </tr>
+  <tr>
+    <td>Nach dem Anmelden geht es sofort zur&uuml;ck zum Anmeldeformular</td>
+    <td>Der Server kann keine Sitzungen speichern. Pr&uuml;fen Sie, ob das
+        Sitzungsverzeichnis von PHP beschreibbar ist, oder fragen Sie Ihren Hoster.</td>
+  </tr>
+</table>
 
 <div class="section-title">Nutzungshinweis</div>
 <p>F&uuml;r jeglichen Schaden, der Ihnen durch die Benutzung dieses Skriptes entsteht,
@@ -161,6 +368,10 @@ Backup-Tools, die diesen Job f&uuml;r Sie auch automatisch erledigen.</p>
 Daten. Es ist immer tragisch, wenn angesammelte Daten verloren gehen. Daher machen Sie
 sich Gedanken, wie Sie eine Datensicherung umsetzen. Bei Fragen hierzu k&ouml;nnen Sie
 nat&uuml;rlich auch bei uns im Forum nachfragen oder uns entsprechend beauftragen.</p>
+<p>Ein zweiter Punkt betrifft die Menge: Jeder Synchronisierungslauf legt neue Beitr&auml;ge
+ab, gel&ouml;scht wird dabei nichts. Wer viele Feeds eingetragen hat, sollte gelegentlich
+einen Blick auf die Gr&ouml;&szlig;e der Tabelle <code>feeds_post</code> werfen und alte Beitr&auml;ge
+entfernen.</p>
 <p>Zus&auml;tzlich sollten Sie in regelm&auml;&szlig;igen Abst&auml;nden auf unserer Webseite schauen. Wir
 ver&ouml;ffentlichen in unregelm&auml;&szlig;igen Abst&auml;nden neue Versionen. Hierbei geben wir an, welche
 Fehler im Script behoben wurden. Sollte hierbei ein kritischer Fehler enthalten gewesen

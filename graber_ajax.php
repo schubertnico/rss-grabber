@@ -51,9 +51,13 @@ if ($dueFeeds !== []) {
     // nicht erreichbare/ungültige Feeds keine PHP-Warnungen in die AJAX-Antwort
     // schreiben.
     libxml_use_internal_errors(true);
+    // Der Abschnitt "http" gilt auch für https-Adressen; einen eigenen
+    // Kontext "https" kennt PHP nicht, ein solcher Eintrag wäre wirkungslos.
     $ctx = stream_context_create([
-      'http'  => ['timeout' => 10, 'user_agent' => 'RSS-Grabber/2.0'],
-      'https' => ['timeout' => 10],
+      'http' => [
+        'timeout'    => 10,
+        'user_agent' => 'RSS-Grabber/3.0 (+https://www.php-space.info/rss-grabber/)',
+      ],
     ]);
     $raw = @file_get_contents($feed['feed_url'], false, $ctx);
     $xml = ($raw !== false) ? @simplexml_load_string($raw, "SimpleXMLElement", LIBXML_NOCDATA) : false;

@@ -27,11 +27,11 @@ Zusätzlich wird der AJAX-Synchronisierungs-Aufruf gegen CSRF abgesichert.
    übergeben (`feeds_synchronisieren.html` / `feeds_synchronisieren.php`).
 
 ## Akzeptanzkriterien
-- [ ] Keine Referenzen auf prototype/jQuery mehr; die drei Alt-Dateien sind weg.
-- [ ] Alle Seiten laden ohne JS-Fehler (Playwright `pageerror`).
-- [ ] Sync-Klick aktualisiert `#update` mit einem Status (E2E).
-- [ ] `graber_ajax.php` ohne Token → 403 (E2E).
-- [ ] PHPUnit weiterhin grün (≥80 %), `php-error.log` leer.
+- [x] Keine Referenzen auf prototype/jQuery mehr; die drei Alt-Dateien sind weg.
+- [x] Alle Seiten laden ohne JS-Fehler (Playwright `pageerror`).
+- [x] Sync-Klick aktualisiert `#update` mit einem Status (E2E).
+- [x] `graber_ajax.php` ohne Token → 403 (E2E).
+- [x] PHPUnit weiterhin grün (≥80 %), `php-error.log` leer.
 
 ## Nicht-Ziele
 - Optisches Redesign, CSS-Überarbeitung, Build-Tooling/Bundler.
