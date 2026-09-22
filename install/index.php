@@ -180,7 +180,7 @@ if($_POST['senden']==1){
 		       if (!fwrite($handle, $config))    {
 		            $fehler.= "- Es konnte die config.php Datei nicht erstellen werden. <br>";
 		       }
-		       $erfolgreich = "Die Installation ist fertig. Bitte l&ouml;schen Sie das Verzeichnis \"install\" auf den Server. Danach k&ouml;nnen Sie <a href=\"../\">hier</a> alle Feeds verwalten. Bitte richten Sie noch einen Passwortschutz für das Verzeichnis ein, da ansonsten jeder Zugriff auf Ihre Feeds hat.<br>";
+		       $erfolgreich = "Die Installation ist fertig. Bitte l&ouml;schen Sie das Verzeichnis \"install\" auf den Server. Danach k&ouml;nnen Sie sich <a href=\"../login.php\">hier anmelden</a> und Ihre Feeds verwalten. Der Zugang lautet \"admin\" / \"admin\" &ndash; bitte &auml;ndern Sie das Passwort umgehend, es steht in jeder Anleitung.<br>";
 		       fclose($handle);
 		   }
 		} else {

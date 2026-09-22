@@ -29,6 +29,7 @@ $repo = new FeedRepository($link);
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $lang_formular['meldung']='';
 $postFeedUrl = is_string($_POST['feed_url'] ?? null) ? trim((string) $_POST['feed_url']) : '';
 $postUrl = is_string($_POST['url'] ?? null) ? trim((string) $_POST['url']) : '';

@@ -26,6 +26,7 @@ rssg_require_login();
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $lang_formular['meldung']='';
 $lang_formular['csrf']=rssg_csrf_token();
 

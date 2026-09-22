@@ -32,6 +32,7 @@ $csrfToken = rssg_csrf_token();
 $medlung='';
 $feeds=[];
 $lang_navigation_top=[];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $ausgabe='';
 if($delete === '1' && $deleteId > 0){
 	if (rssg_csrf_check($_GET['csrf'] ?? null) === false) {

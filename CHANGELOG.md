@@ -63,6 +63,17 @@ statischer Analyse (PHPStan Level 8).
   Name lautet jetzt `PHP-Space RSS-Reader/3.0` und nennt die Projektadresse,
   damit Betreiber die Zugriffe weiterhin zuordnen können. Der Fehler bestand
   schon in der Version 2.0 (`RSS-Grabber/2.0`).
+- **Kein Weg zur Anmeldung.** Die Navigation zeigte immer „Logout", auch
+  abgemeldet. Wer die öffentliche Beitragsanzeige aufrief, fand keinen Weg in
+  den Verwaltungsbereich und musste `login.php` erraten. Der Punkt heißt
+  jetzt „Anmelden", solange niemand angemeldet ist. Die beiden öffentlichen
+  Seiten fragen den Status ab, ohne jedem Besucher eine Sitzung anzulegen
+  (`RSSG_SESSION_NUR_MIT_COOKIE`): Wer kein Sitzungscookie mitbringt, kann
+  nicht angemeldet sein.
+- **Überholter Hinweis nach der Installation.** Die Erfolgsmeldung riet zu
+  einem Passwortschutz für das Verzeichnis, „da ansonsten jeder Zugriff auf
+  Ihre Feeds hat" – ein Satz aus der Zeit vor dem Login. Sie verweist jetzt
+  auf die Anmeldung und auf die Pflicht, das Standardpasswort zu ändern.
 
 ### Entfernt
 - `java/prototype.js`, `java/jQuery.js`, `java/jquery-1.4.2.min.js` (veraltet, 2010).

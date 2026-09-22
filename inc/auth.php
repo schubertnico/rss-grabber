@@ -5,7 +5,15 @@
  * @version free v3.0 (PHP 8.5)
  */
 
-if (session_status() === PHP_SESSION_NONE) {
+// Öffentliche Seiten (ausgabe.php, premium-version.php) binden diese Datei
+// nur ein, um den Anmeldestatus für die Navigation zu kennen. Sie setzen
+// vorher RSSG_SESSION_NUR_MIT_COOKIE und bekommen dann keine Sitzung für
+// jeden Besucher: Wer kein Sitzungscookie mitbringt, kann nicht angemeldet
+// sein - die Frage lässt sich also ohne session_start() beantworten.
+if (
+    session_status() === PHP_SESSION_NONE
+    && (defined('RSSG_SESSION_NUR_MIT_COOKIE') === false || isset($_COOKIE[session_name()]))
+) {
     // Sichere Session-Cookies (HttpOnly, SameSite=Lax).
     session_set_cookie_params([
         'httponly' => true,
@@ -51,6 +59,20 @@ if (function_exists('rssg_csrf_token') === false) {
     function rssg_is_logged_in(): bool
     {
         return !empty($_SESSION['rssg_admin']);
+    }
+
+    /**
+     * Der Zugangspunkt der Navigation: abgemeldet "Anmelden", sonst "Logout".
+     *
+     * Vorher stand dort immer "Logout". Wer die oeffentliche Beitragsanzeige
+     * aufrief, fand damit keinen Weg in den Verwaltungsbereich und musste
+     * login.php erraten.
+     */
+    function rssg_nav_zugang(): string
+    {
+        return rssg_is_logged_in()
+            ? '<a href="logout.php">Logout</a>'
+            : '<a href="login.php">Anmelden</a>';
     }
 
     /**

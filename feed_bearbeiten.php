@@ -29,6 +29,7 @@ $repo = new FeedRepository($link);
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $lang_formular['meldung']='';
 
 $postId = (int)($_POST['id'] ?? 0);
