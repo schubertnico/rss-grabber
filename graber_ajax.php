@@ -53,10 +53,16 @@ if ($dueFeeds !== []) {
     libxml_use_internal_errors(true);
     // Der Abschnitt "http" gilt auch für https-Adressen; einen eigenen
     // Kontext "https" kennt PHP nicht, ein solcher Eintrag wäre wirkungslos.
+    //
+    // Im Namen steht bewusst nicht "Grabber": Verbreitete Schutzregeln auf
+    // Webservern (ModSecurity und Verwandte) weisen jede Anfrage mit diesem
+    // Wort im User-Agent mit 403 ab. Gemessen an php-space.info selbst -
+    // "RSS-Reader/3.0" wird beantwortet, dieselbe Anfrage mit "Grabber" im
+    // Namen oder in der mitgeführten Adresse nicht.
     $ctx = stream_context_create([
       'http' => [
         'timeout'    => 10,
-        'user_agent' => 'RSS-Grabber/3.0 (+https://www.php-space.info/rss-grabber/)',
+        'user_agent' => 'PHP-Space RSS-Reader/3.0 (+https://www.php-space.info/)',
       ],
     ]);
     $raw = @file_get_contents($feed['feed_url'], false, $ctx);

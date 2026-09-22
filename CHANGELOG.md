@@ -55,9 +55,14 @@ statischer Analyse (PHPStan Level 8).
   Erkennung bei `ajax=0`). Jetzt korrekt am Vorhandensein des Parameters erkannt.
 - `limitch()` kürzt zeichenweise (`mb_substr`) – keine zerschnittenen Umlaute.
 - Anzeigename bei `https`-Feeds (`rssg_feed_name()`).
-- Der gesendete Anwendungsname (User-Agent) beim Feed-Abruf nannte weiterhin
-  `RSS-Grabber/2.0`; er lautet jetzt `RSS-Grabber/3.0` und nennt die
-  Projektadresse, damit Betreiber die Zugriffe zuordnen können.
+- **Die mitgelieferten Beispiel-Feeds ließen sich nicht abrufen.** Der beim
+  Feed-Abruf gesendete Anwendungsname enthielt das Wort „Grabber", und
+  verbreitete Schutzregeln auf Webservern (ModSecurity und Verwandte) weisen
+  solche Anfragen mit HTTP 403 ab – auch php-space.info selbst. Nach der
+  Installation stand deshalb bei allen drei Beispiel-Feeds „fehler". Der
+  Name lautet jetzt `PHP-Space RSS-Reader/3.0` und nennt die Projektadresse,
+  damit Betreiber die Zugriffe weiterhin zuordnen können. Der Fehler bestand
+  schon in der Version 2.0 (`RSS-Grabber/2.0`).
 
 ### Entfernt
 - `java/prototype.js`, `java/jQuery.js`, `java/jquery-1.4.2.min.js` (veraltet, 2010).
