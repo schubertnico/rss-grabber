@@ -3,6 +3,9 @@
 Diese Anleitung beschreibt die Installation der Version **3.0**. Sie ersetzt die
 ältere `Installationsanleitung_2.00.pdf` (Version 2.0).
 
+> Dieselbe Anleitung liegt dem Paket als **bebildertes PDF** bei:
+> `Installationsanleitung_3.0.pdf`.
+
 ## 1. Voraussetzungen
 
 | Komponente   | Anforderung                                            |
@@ -16,17 +19,41 @@ Diese Anleitung beschreibt die Installation der Version **3.0**. Sie ersetzt die
 > Läuft auf dem Server eine ältere PHP-Version als 8.5, bricht die
 > Installationsroutine mit einem Hinweis ab.
 
-## 2. Installation auf einem Webspace (Shared Hosting)
+## 2. Das ist neu in der Version 3.0
 
-### Schritt 1 – Dateien hochladen
-Laden Sie alle Projektdateien per FTP/SFTP in das gewünschte Verzeichnis Ihres
-Webspace hoch (z. B. `/rss-grabber/`).
+- **Anmeldung für den Verwaltungsbereich.** Feeds anlegen, bearbeiten, löschen
+  und synchronisieren setzt eine Anmeldung voraus. Öffentlich erreichbar bleibt
+  nur die Beitragsanzeige (`ausgabe.php`).
+- **Umlaute werden korrekt gespeichert** – Datenbank und Ausgabe laufen
+  durchgängig auf `utf8mb4`.
+- **PHP 8.5** ohne Warnungen und veraltete Aufrufe.
+- **Kein jQuery und kein prototype.js mehr**; das Nachladen beim Scrollen
+  erledigt eine schlanke eigene JavaScript-Datei.
+- **Abgesicherte Eingaben** über vorbereitete Anweisungen und maskierte Ausgaben.
 
-### Schritt 2 – Datenbank anlegen
+## 3. Installation auf einem Webspace (Shared Hosting)
+
+### Schritt 1 – Datenbank anlegen
 Legen Sie über Ihr Hosting-Panel eine MySQL-Datenbank an (Zeichensatz
 **utf8mb4**) und notieren Sie Host, Datenbankname, Benutzer und Passwort.
 
-### Schritt 3 – Installationsroutine aufrufen
+### Schritt 2 – Dateien hochladen
+Laden Sie alle Projektdateien per FTP/SFTP in das gewünschte Verzeichnis Ihres
+Webspace hoch (z. B. `/rss-grabber/`).
+
+### Schritt 3 – Schreibrecht für `inc/` sicherstellen
+Die Installationsroutine legt dort die Datei `config.php` an. Bei den meisten
+Hostern funktioniert das ohne Zutun. Erst wenn die Routine meldet, dass sie die
+Datei nicht schreiben kann, greifen Sie ein – in dieser Reihenfolge:
+
+1. **755 für Verzeichnisse, 644 für Dateien.** Die richtige Einstellung für
+   einen normal eingerichteten Webserver.
+2. **775 für `inc/`**, wenn der Webserver unter einer anderen Kennung läuft,
+   aber zur selben Gruppe gehört.
+3. **777 nur im Notfall** – und nach der Installation wieder auf 755 zurück.
+   Die Konfigurationsdatei ist dann geschrieben und wird nicht mehr verändert.
+
+### Schritt 4 – Installationsroutine aufrufen
 Öffnen Sie im Browser `https://IHRE-DOMAIN/rss-grabber/install/` und füllen Sie
 das Formular aus:
 
@@ -37,12 +64,12 @@ das Formular aus:
 Die Routine legt die Tabellen `feeds`, `feeds_post` und `admin` an, befüllt
 Beispiel-Feeds und erzeugt die Datei `inc/config.php`.
 
-### Schritt 4 – Install-Verzeichnis entfernen
-Löschen Sie nach erfolgreicher Installation das Verzeichnis `install/` vom Server.
+### Schritt 5 – Install-Verzeichnis entfernen
+Löschen Sie nach erfolgreicher Installation das Verzeichnis `install/` vom
+Server. Solange es erreichbar ist, kann jeder Ihre Installation überschreiben.
 
-### Schritt 5 – Anmelden
-Der Verwaltungsbereich ist jetzt durch ein **Login** geschützt. Öffnen Sie
-`https://IHRE-DOMAIN/rss-grabber/` und melden Sie sich an:
+### Schritt 6 – Anmelden
+Öffnen Sie `https://IHRE-DOMAIN/rss-grabber/` und melden Sie sich an:
 
 | Feld     | Standardwert |
 |----------|--------------|
@@ -54,27 +81,47 @@ Der Verwaltungsbereich ist jetzt durch ein **Login** geschützt. Öffnen Sie
 > `php -r "echo password_hash('IHR-NEUES-PASSWORT', PASSWORD_DEFAULT);"`, und
 > tragen Sie ihn in die Tabelle `admin` (Spalte `password_hash`) ein.
 
-Öffentlich erreichbar bleibt nur die Beitragsanzeige (`ausgabe.php`).
+## 4. Umstieg von der Version 2.0
 
-## 3. Nutzung
+Ein Update ist kein Ersetzen einzelner Dateien:
+
+1. **Datenbank und Verzeichnis sichern.** Ohne Sicherung kein Update.
+2. **Einstellungen notieren** aus der alten `inc/config.php`.
+3. **Neue Dateien hochladen** und die alten überschreiben. Die Dateien
+   `java/prototype.js`, `java/jQuery.js` und `java/jquery-1.4.2.min.js` werden
+   nicht mehr gebraucht und sollten vom Server gelöscht werden.
+4. **`install/` erneut aufrufen** und dieselben Datenbankdaten angeben.
+   Vorhandene Tabellen bleiben erhalten, die neue Tabelle `admin` kommt hinzu.
+5. **Datenbank auf `utf8mb4` umstellen**, falls sie noch auf `latin1` läuft.
+   Neue Beiträge werden korrekt gespeichert; bereits falsch abgelegte Umlaute
+   in alten Beiträgen werden dadurch nicht rückwirkend richtig. Wer den
+   Altbestand nicht braucht, leert `feeds_post` und synchronisiert neu.
+6. **`install/` löschen** und das Standardpasswort ändern.
+
+## 5. Nutzung
 
 1. **Neuen Feed eintragen** – Homepage und Feed-URL (RSS 2.0 oder Atom) angeben.
 2. **Feeds synchronisieren** – ruft die Feeds ab und speichert neue Beiträge.
+   Erst dieser Schritt füllt die Anzeige.
 3. **Alle Feeds anzeigen** – zeigt die Beiträge (mit automatischem Nachladen
-   beim Scrollen).
-4. **Feeds verwalten** – Feeds bearbeiten oder löschen.
+   beim Scrollen). Diese Seite ist auch ohne Anmeldung erreichbar.
+4. **Feeds verwalten** – Feeds bearbeiten oder löschen; die Übersicht zeigt
+   Zeitpunkt und Ergebnis des letzten Laufs.
 
 Richten Sie die Synchronisierung idealerweise als regelmäßigen Cron-Job ein, der
 `feeds_synchronisieren.php` bzw. den Sync-Endpunkt aufruft.
 
-## 4. Sicherheit nach der Installation
+## 6. Sicherheit nach der Installation
 
-- Standard-Admin-Passwort ändern (siehe oben).
+- Standard-Admin-Passwort ändern (siehe oben). Der Zugang `admin`/`admin` ist
+  öffentlich bekannt.
 - `inc/config.php` enthält Zugangsdaten – per Server/`.htaccess` vor direktem
   Abruf schützen.
-- Install-Verzeichnis entfernt halten.
+- Install-Verzeichnis entfernt halten, auch nach einem Update.
+- Die Seite über `https` betreiben, sonst geht das Passwort im Klartext über die
+  Leitung.
 
-## 5. Installation per Docker (Entwicklung)
+## 7. Installation per Docker (Entwicklung)
 
 Für lokale Entwicklung liegt eine fertige Umgebung unter `.docker/` bereit
 (Web, Datenbank, Mailpit, phpMyAdmin):
@@ -94,12 +141,15 @@ Die Datenbank wird über `.docker/init.sql` automatisch eingerichtet
 (inkl. Admin-Zugang `admin`/`admin`); `inc/config.php` ist vorkonfiguriert.
 Details: [`.docker/README.md`](.docker/README.md).
 
-## 6. Fehlerbehebung
+## 8. Fehlerbehebung
 
 | Problem                          | Ursache / Lösung                              |
 |----------------------------------|-----------------------------------------------|
 | Weiterleitung auf `install/`     | `inc/config.php` fehlt – Installation ausführen|
 | „Datenbankverbindung nicht möglich" | DB-Zugangsdaten in `inc/config.php` prüfen  |
 | Umlaute falsch dargestellt       | Datenbank/Tabellen müssen `utf8mb4` sein       |
-| Feeds werden nicht abgerufen     | `allow_url_fopen` aktivieren; URL erreichbar?  |
+| Feeds werden nicht abgerufen     | `allow_url_fopen` aktivieren; Feed-Adresse im Browser prüfen |
+| Ein Feed meldet dauerhaft „fehler" | Die Gegenstelle antwortet nicht oder weist automatische Abrufe ab. Feed-Adresse im Browser aufrufen und prüfen, ob dort XML ankommt. |
+| Beim Scrollen wird nichts nachgeladen | JavaScript im Browser aktivieren           |
+| Nach dem Anmelden erscheint wieder das Formular | Der Server kann keine Sitzungen speichern – Sitzungsverzeichnis von PHP prüfen |
 | PHP-Version-Hinweis im Installer | PHP auf 8.5+ aktualisieren                     |

@@ -29,10 +29,10 @@ dünn (Request parsen → Repository aufrufen → rendern). Verhalten bleibt gle
 2. Unit-Test für `rssg_feed_name()`.
 
 ## Akzeptanzkriterien
-- [ ] PHPStan Level 8 grün.
-- [ ] PHPUnit grün, Coverage `classes/` ≥ 80 %.
-- [ ] Playwright-E2E (16) grün, `php-error.log` leer.
-- [ ] Kein inline-SQL mehr in den Controllern (außer Render).
+- [x] PHPStan Level 8 grün.
+- [x] PHPUnit grün, Coverage `classes/` ≥ 80 %.
+- [x] Playwright-E2E (17) grün, `php-error.log` leer.
+- [x] Kein inline-SQL mehr in den Controllern (außer Render).
 
 ## Nicht-Ziele
 - Kein ORM, kein Framework, keine DB-Abstraktion über mysqli hinaus.

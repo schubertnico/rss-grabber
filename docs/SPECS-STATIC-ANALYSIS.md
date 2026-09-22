@@ -25,8 +25,8 @@ die bisherige Arbeit absichert – analog zum Eltern-Projekt (PHPStan Level 8).
   damit sie nicht als „immer wahr/falsch" gemeldet werden.
 
 ## Akzeptanzkriterien
-- [ ] `vendor/bin/phpstan analyse` → `[OK] No errors`.
-- [ ] PHPUnit (37) und Playwright (16) weiterhin grün, `php-error.log` leer.
+- [x] `vendor/bin/phpstan analyse` → `[OK] No errors`.
+- [x] PHPUnit (51) und Playwright (17) weiterhin grün, `php-error.log` leer.
 
 ## Nicht-Ziele / Folgearbeit
 - **Psalm** (errorLevel 1 wie im Eltern-Projekt) ist als Folgeschritt vorgesehen;

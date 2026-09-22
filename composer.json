@@ -1,6 +1,6 @@
 {
     "name": "schubertmedia/rss-grabber",
-    "description": "RSS Grabber free v2.0 – PHP 8.5 / UTF-8",
+    "description": "RSS Grabber free v3.0 – PHP 8.5 / UTF-8",
     "type": "project",
     "license": "proprietary",
     "require": {

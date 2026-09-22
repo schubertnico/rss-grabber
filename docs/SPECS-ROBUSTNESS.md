@@ -35,8 +35,8 @@ Anwenderfunktion zu ändern.
 2. Leere Feed-ID-Liste erzeugt keine fehlerhafte `IN ('')`-Query.
 
 ## Akzeptanzkriterien
-- [ ] PHPUnit grün inkl. neuer Tests (`rssg_render_feed_post`, mb-Kürzung),
+- [x] PHPUnit grün inkl. neuer Tests (`rssg_render_feed_post`, mb-Kürzung),
       Coverage `classes/` ≥ 80 %.
-- [ ] Playwright-E2E weiterhin grün.
-- [ ] `php-error.log` bleibt leer.
-- [ ] Installer erzeugt mit Passwort `a'b"c` eine syntaktisch gültige config.php.
+- [x] Playwright-E2E weiterhin grün.
+- [x] `php-error.log` bleibt leer.
+- [x] Installer erzeugt mit Passwort `a'b"c` eine syntaktisch gültige config.php.
