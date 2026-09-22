@@ -91,6 +91,10 @@ statischer Analyse (PHPStan Level 8).
   seit Version 3.0 nicht mehr: Die Synchronisierung verlangt eine Anmeldung,
   ein zeitgesteuerter Abruf landet am Anmeldeformular. Automatisches
   Synchronisieren ist Teil der Premium-Version.
+- **Die Seite „Feed bearbeiten" sagte „Hier können sie einen neuen Feed
+  eintragen"** – ein vom Eintragen-Formular kopierter Satz. Sie erklärt jetzt
+  das Ändern und das Abschalten. Im Eintragen-Formular ist die Anrede „Sie"
+  großgeschrieben.
 - **Die Premium-Seite nannte nur den Preis**, nicht den Inhalt. Sie führt jetzt
   die beiden Unterschiede auf: Cronjob-Unterstützung und kein
   Copyright-Hinweis.
