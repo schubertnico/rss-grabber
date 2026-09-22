@@ -25,11 +25,17 @@ require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
 require_once(__DIR__ . '/classes/FeedRepository.php');
+// Diese Seite ist öffentlich; auth.php wird nur für den Zugangspunkt der
+// Navigation gebraucht. Die Konstante verhindert, dass jeder Besucher eine
+// Sitzung samt Cookie bekommt.
+define('RSSG_SESSION_NUR_MIT_COOKIE', true);
+require_once(__DIR__ . '/inc/auth.php');
 
 header("content-type: text/html; charset=UTF-8");
 
 $lang = [];
 $lang_navigation_top = [];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $repo = new FeedRepository($link);
 $feeds = $repo->feedMap();
 $feedIds = array_keys($feeds);

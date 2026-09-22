@@ -21,9 +21,14 @@ require_once(__DIR__ . '/inc/config.php');
 require_once(__DIR__ . '/db.php');
 require_once(__DIR__ . '/classes/function.php');
 require_once(__DIR__ . '/classes/parase.php');
+// Öffentliche Seite: auth.php nur für den Zugangspunkt der Navigation,
+// ohne jedem Besucher eine Sitzung anzulegen.
+define('RSSG_SESSION_NUR_MIT_COOKIE', true);
+require_once(__DIR__ . '/inc/auth.php');
 $lang=[];
 $lang_formular=[];
 $lang_navigation_top=[];
+$lang_navigation_top['zugang'] = rssg_nav_zugang();
 $lang_formular['meldung']='';
 
 $template_formular = new PARSE;
