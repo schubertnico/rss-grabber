@@ -146,6 +146,40 @@ if (function_exists("rssg_store_feed_post") === false) {
     mysqli_stmt_close($insert);
   }
 }
+if (function_exists("rssg_feed_eintraege") === false) {
+  /**
+   * Liefert die Beiträge eines Feeds samt Art (1 = RSS 2.0, 2 = Atom).
+   *
+   * Das Format wird am Wurzelelement erkannt, statt beide Pfade blind
+   * abzugehen: Ein Atom-Feed hat kein <channel>, $xml->channel->item ergibt
+   * dort null, und PHP 8 warnt bei foreach über null. Ein unbekanntes Format
+   * liefert eine leere Liste - lieber nichts speichern als etwas Falsches.
+   *
+   * @return list<array{0: SimpleXMLElement, 1: int}>
+   */
+  function rssg_feed_eintraege(SimpleXMLElement $xml): array
+  {
+    $eintraege = [];
+
+    if ($xml->getName() === 'feed') {
+      foreach ($xml->entry as $eintrag) {
+        $eintraege[] = [$eintrag, 2];
+      }
+      return $eintraege;
+    }
+
+    // Nicht auf <rss> als Wurzel einschränken: Der Abruf hat bisher jeden
+    // Feed mit <channel> angenommen, und eine strengere Prüfung würde
+    // Feeds still ausschließen, die heute funktionieren.
+    if (isset($xml->channel)) {
+      foreach ($xml->channel->item as $eintrag) {
+        $eintraege[] = [$eintrag, 1];
+      }
+    }
+
+    return $eintraege;
+  }
+}
 if (function_exists("addItem") === false) {
   /**
    * Speichert einen Feed-Beitrag (RSS 2.0 oder Atom) in der Tabelle feeds_post.

@@ -108,8 +108,14 @@ Ein Update ist kein Ersetzen einzelner Dateien:
 4. **Feeds verwalten** – Feeds bearbeiten oder löschen; die Übersicht zeigt
    Zeitpunkt und Ergebnis des letzten Laufs.
 
-Richten Sie die Synchronisierung idealerweise als regelmäßigen Cron-Job ein, der
-`feeds_synchronisieren.php` bzw. den Sync-Endpunkt aufruft.
+In der kostenlosen Version stoßen Sie die Synchronisierung per Klick an. Ein
+Cronjob kann sie nicht aufrufen: Seit Version 3.0 verlangt sie eine Anmeldung,
+und ein zeitgesteuerter Abruf landet am Anmeldeformular. Automatisch
+synchronisieren kann die Premium-Version (siehe Menüpunkt „Premium-Version").
+
+**Feed ändern oder löschen:** Unter „Feed verwalten" stehen bei jedem Eintrag
+die Links „Bearbeiten" und „Löschen". Gelöscht wird ohne weitere Rückfrage.
+Die bereits abgerufenen Beiträge des Feeds verschwinden damit aus der Anzeige.
 
 ## 6. Sicherheit nach der Installation
 

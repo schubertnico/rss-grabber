@@ -70,11 +70,8 @@ if ($dueFeeds !== []) {
     libxml_clear_errors();
 
     if ($xml !== false && isset($iso_to_utf)) {
-      foreach ($xml->channel->item as $v) {
-        addItem((string)$iso_to_utf, $v, $feedId, $link);
-      }
-      foreach ($xml->entry as $v) {
-        addItem((string)$iso_to_utf, $v, $feedId, $link, 2);
+      foreach (rssg_feed_eintraege($xml) as [$eintrag, $art]) {
+        addItem((string)$iso_to_utf, $eintrag, $feedId, $link, $art);
       }
     }
     $status = ($xml === false) ? 'fehler' : 'erfolgreich';

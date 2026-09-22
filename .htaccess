@@ -1,5 +1,17 @@
-php_flag display_startup_errors on
-php_flag display_errors on
-php_flag html_errors on
-php_flag log_errors on
-php_value error_log /var/log/php_errors.log
+# RSS Grabber – Einstellungen für Apache
+#
+# Keine PHP-Fehlermeldungen im Browser. Eine Warnung verrät Besuchern
+# Dateipfade des Servers und sieht nach einer kaputten Seite aus.
+# Protokolliert wird weiterhin nach den Vorgaben des Hosters.
+#
+# Bis Version 3.0 stand hier das Gegenteil (display_errors on, dazu ein
+# Log unter /var/log/php_errors.log) – Einstellungen aus der Entwicklung, die
+# mit ausgeliefert wurden.
+#
+# Nur unter mod_php wirksam. Läuft PHP als FastCGI oder FPM, gelten die
+# Einstellungen des Hosters; php_flag außerhalb dieses Blocks führt dort zu
+# einem Serverfehler 500.
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_flag display_startup_errors off
+</IfModule>

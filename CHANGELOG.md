@@ -70,6 +70,30 @@ statischer Analyse (PHPStan Level 8).
   Seiten fragen den Status ab, ohne jedem Besucher eine Sitzung anzulegen
   (`RSSG_SESSION_NUR_MIT_COOKIE`): Wer kein Sitzungscookie mitbringt, kann
   nicht angemeldet sein.
+- **PHP-Warnung beim Synchronisieren von Atom-Feeds.** Der Abruf ging für
+  jeden Feed beide Pfade durch, `$xml->channel->item` und `$xml->entry`. Ein
+  Atom-Feed hat kein `<channel>`, der Zugriff ergab `null`, und PHP 8 warnt bei
+  `foreach` über `null`. Die neue Funktion `rssg_feed_eintraege()` erkennt das
+  Format am Wurzelelement; fünf Unit-Tests decken RSS, Atom, leeren Feed und
+  unbekanntes Format ab. Aufgefallen im Einrichtungsvideo – die Tests liefen
+  bis dahin nur mit RSS-Feeds.
+- **Die mitgelieferte `.htaccess` schaltete die Fehleranzeige ein**
+  (`display_errors on`) und lenkte das Protokoll nach
+  `/var/log/php_errors.log` – Einstellungen aus der Entwicklung, seit dem
+  ersten Commit im Paket. Jede Warnung stand damit für Besucher sichtbar samt
+  Serverpfad im Browser. Auf Hostern mit PHP-FPM oder FastCGI führen
+  `php_flag`-Zeilen außerhalb eines `IfModule`-Blocks zudem zu einem
+  Serverfehler 500. Die Datei schaltet die Anzeige jetzt ab, nur unter
+  `mod_php`.
+- **`inc/` ist vor direktem Abruf geschützt** (eigene `.htaccess`). Die
+  Anleitung sagte das bereits zu, es traf aber nicht zu.
+- **Die Anleitung empfahl einen Cronjob für die Synchronisierung.** Das geht
+  seit Version 3.0 nicht mehr: Die Synchronisierung verlangt eine Anmeldung,
+  ein zeitgesteuerter Abruf landet am Anmeldeformular. Automatisches
+  Synchronisieren ist Teil der Premium-Version.
+- **Die Premium-Seite nannte nur den Preis**, nicht den Inhalt. Sie führt jetzt
+  die beiden Unterschiede auf: Cronjob-Unterstützung und kein
+  Copyright-Hinweis.
 - **Überholter Hinweis nach der Installation.** Die Erfolgsmeldung riet zu
   einem Passwortschutz für das Verzeichnis, „da ansonsten jeder Zugriff auf
   Ihre Feeds hat" – ein Satz aus der Zeit vor dem Login. Sie verweist jetzt
