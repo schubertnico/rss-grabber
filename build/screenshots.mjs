@@ -26,13 +26,22 @@ if (!ver) {
     }
 }
 
-const outDir = `Screenshots/v${ver}`;
+/*
+ * SKALIERUNG: Pixeldichte der Aufnahme. Die Produktseite zeigt Vollbilder mit
+ * 1200 Pixeln Breite; der Inhaltsbereich ist aber nur rund 950 Pixel breit.
+ * Hochrechnen machte die Schrift unscharf - mit SKALIERUNG=2 entsteht die
+ * doppelte Auflösung, und das Herunterrechnen auf 1200 bleibt scharf.
+ * ZIEL: anderer Ablageort, damit solche Aufnahmen nicht die Screenshots im
+ * Repository überschreiben.
+ */
+const SKALIERUNG = Number(process.env.SKALIERUNG || 1);
+const outDir = process.env.ZIEL || `Screenshots/v${ver}`;
 mkdirSync(outDir, { recursive: true });
 
 const browser = await chromium.launch();
 const context = await browser.newContext({
     viewport: { width: 1366, height: 900 },
-    deviceScaleFactor: 1,
+    deviceScaleFactor: SKALIERUNG,
 });
 const page = await context.newPage();
 

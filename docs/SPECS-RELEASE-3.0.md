@@ -45,6 +45,12 @@ Version 2.0 von 2022.
   unter `img/` von php-space.info nach dem Namensschema
   `<thema>_rss_grabber_3.0(_t).jpg`.
 
+  *Abgelöst am 22.09.2026:* Die Produktseite folgt jetzt dem Muster von
+  `/simple-php-forum/` – PNG, Vollbild 1200 px breit, Vorschau 280 px breit
+  mit natürlicher Höhe, abgelegt unter `rss-grabber/bilder/` und
+  `rss-grabber/bilder/tn/tn_*`, Anzeige in einer Lightbox. Aufgenommen mit
+  `SKALIERUNG=2` (`build/screenshots.mjs`), damit das Vollbild scharf bleibt.
+
 ### C – Installationsanleitung
 
 - **C1** Die Anleitung ist bebildert: Installationsformular, Anmeldung,
